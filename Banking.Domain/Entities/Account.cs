@@ -18,7 +18,9 @@ namespace Banking.Domain.Entities
         public string AccountNumber { get; set; }
 
         [Required]
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } // ???
+
+
 
         public decimal Balance { get; set; }
         public string CurrencyCode { get; set; } = "USD"; // ISO 4217 format
@@ -26,9 +28,23 @@ namespace Banking.Domain.Entities
         public DateTimeOffset LastWithdrawalDate { get; set; }
         public decimal WithdrawalTotalToday { get; set; }
 
-        public int Version { get; set; }
-
         public AccountType AccountType { get; set; }
         public Customer Customer { get; set; }
+
+
+
+        public Account Clone()
+        {
+            return new Account()
+            {
+                Id = Id,
+                CustomerId = CustomerId,
+                AccountTypeId = AccountTypeId,
+                AccountNumber = AccountNumber,
+                Balance = Balance,
+                CurrencyCode = CurrencyCode,
+                IsActive = IsActive,
+            };
+        }
     }
 }

@@ -3,7 +3,7 @@ using Banking.Application.Enumerations;
 
 namespace Banking.Application.Helpers
 {
-    public static class PhaseInterfaceHelper
+    public static class TransactionPhaseInterfaceHelper
     {
         public static Type ResolveType(TransactionCommandPhaseType phase, Type inputType, Type outputType)
         {

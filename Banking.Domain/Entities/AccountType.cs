@@ -13,5 +13,15 @@ namespace Banking.Domain.Entities
 
         [Required]
         public bool IsActive { get; set; }
+
+        public AccountType Clone()
+        {
+            return new AccountType()
+            {
+                Id = Id,
+                Name = Name,
+                IsActive = IsActive
+            };
+        }
     }
 }

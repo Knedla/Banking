@@ -20,7 +20,7 @@ namespace Banking.API.Extension
             foreach (var type in types)
             {
                 var iface = type.GetInterfaces()
-                    .FirstOrDefault(i => i.IsGenericType && PhaseInterfaceHelper.IsCommandPhaseInterface(i.GetGenericTypeDefinition()));
+                    .FirstOrDefault(i => i.IsGenericType && TransactionPhaseInterfaceHelper.IsCommandPhaseInterface(i.GetGenericTypeDefinition()));
 
                 if (iface == null)
                     continue;
@@ -28,7 +28,7 @@ namespace Banking.API.Extension
                 var genericArgs = iface.GetGenericArguments();
                 var input = genericArgs[0];
                 var output = genericArgs[1];
-                var phase = PhaseInterfaceHelper.GetPhaseFromInterface(iface.GetGenericTypeDefinition());
+                var phase = TransactionPhaseInterfaceHelper.GetPhaseFromInterface(iface.GetGenericTypeDefinition());
 
                 var key = (Input: input, Output: output);
                 if (!_cache.TryGetValue(key, out var list))

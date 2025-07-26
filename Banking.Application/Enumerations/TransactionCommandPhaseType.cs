@@ -1,6 +1,6 @@
 ﻿namespace Banking.Application.Enumerations
 {
-    // do not forget to update PhaseInterfaceHelper
+    // do not forget to update TransactionPhaseInterfaceHelper
     public enum TransactionCommandPhaseType
     {
         Initialization = 0,

@@ -30,7 +30,7 @@ namespace Banking.Infrastructure.Factories
 
             foreach (var phase in Enum.GetValues<TransactionCommandPhaseType>())
             {
-                var iface = PhaseInterfaceHelper.ResolveType(phase, inputType, outputType);
+                var iface = TransactionPhaseInterfaceHelper.ResolveType(phase, inputType, outputType);
 
                 var handlers = _provider.GetServices(iface)
                     .Cast<ITransactionCommandHandler<TInput, TOutput>>()
