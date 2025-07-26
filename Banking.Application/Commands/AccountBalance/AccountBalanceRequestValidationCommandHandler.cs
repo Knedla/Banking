@@ -5,14 +5,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Banking.Application.Commands.AccountBalance
 {
-    public class AccountBalanceRequestValidationCommand : IValidationCommand<AccountBalanceRequest, AccountBalanceResponse>
+    public class AccountBalanceRequestValidationCommandHandler : IValidationCommandHandler<AccountBalanceRequest, AccountBalanceResponse>
     {
         public Task<bool> CanExecuteAsync(CommandContext<AccountBalanceRequest, AccountBalanceResponse> ctx, CancellationToken ct)
             => Task.FromResult(true);
 
         public Task ExecuteAsync(CommandContext<AccountBalanceRequest, AccountBalanceResponse> ctx, CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(ctx.Input.AccountId))
+            if (ctx.Input.AccountId == null)
                 throw new ValidationException("AccountId is required");
 
             return Task.CompletedTask;

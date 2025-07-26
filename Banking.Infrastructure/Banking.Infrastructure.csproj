@@ -9,8 +9,11 @@
 
   <ItemGroup>
     <Folder Include="External\" />
-    <Folder Include="Services\" />
-    <Folder Include="Persistence\Repositories\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Banking.Application\Banking.Application.csproj" />
+    <ProjectReference Include="..\Banking.Domain\Banking.Domain.csproj" />
   </ItemGroup>
 
 </Project>

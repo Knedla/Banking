@@ -10,7 +10,7 @@ namespace Banking.API.Controllers
     {
         //[HttpPost]
         public async Task/*<ActionResult*/<WithdrawalResponse>/*>*/ Withdraw(
-            /*[FromServices]*/ ICommand<WithdrawalRequest, WithdrawalResponse> command,
+            /*[FromServices]*/ ICommandHandler<WithdrawalRequest, WithdrawalResponse> command,
             /*[FromBody]*/ WithdrawalRequest request,
             CancellationToken ct)
         {

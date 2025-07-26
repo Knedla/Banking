@@ -11,16 +11,16 @@ using System.Reflection;
 
 namespace Banking.Core.Commands.Transaction
 {
-    public class TransactionCommand<TInput, TOutput> : ICommand<TInput, TOutput>
+    public class TransactionCommandHandler<TInput, TOutput> : ICommandHandler<TInput, TOutput>
     {
-        private readonly ILogger<TransactionCommand<TInput, TOutput>>? _logger;
+        private readonly ILogger<TransactionCommandHandler<TInput, TOutput>>? _logger;
         private readonly ITelemetryService? _telemetry;
 
-        private readonly List<(CommandPhaseType Phase, ICommand<TInput, TOutput> Command)> _ordered;
+        private readonly List<(CommandPhaseType Phase, ICommandHandler<TInput, TOutput> Command)> _ordered;
 
-        public TransactionCommand(
+        public TransactionCommandHandler(
             IServiceProvider provider,
-            ILogger<TransactionCommand<TInput, TOutput>>? logger = null,
+            ILogger<TransactionCommandHandler<TInput, TOutput>>? logger = null,
             ITelemetryService? telemetry = null)
         {
             _logger = logger;
@@ -32,7 +32,7 @@ namespace Banking.Core.Commands.Transaction
             foreach (var phase in phaseOrder)
             {
                 var iface = PhaseInterfaceHelper.ResolveType(phase, typeof(TInput), typeof(TOutput));
-                var commands = provider.GetServices(iface).Cast<ICommand<TInput, TOutput>>();
+                var commands = provider.GetServices(iface).Cast<ICommandHandler<TInput, TOutput>>();
 
                 var ordered = commands
                     .Select(cmd => (
@@ -48,12 +48,12 @@ namespace Banking.Core.Commands.Transaction
 
             // Ensure at least one IExecution is registered
             if (!_ordered.Any(x => x.Phase == CommandPhaseType.Execution))
-                throw new InvalidOperationException($"No {nameof(IExecutionCommand<TInput, TOutput>)} command registered.");
+                throw new InvalidOperationException($"No {nameof(IExecutionCommandHandler<TInput, TOutput>)} command registered.");
         }
 
         public async Task<bool> CanExecuteAsync(CommandContext<TInput, TOutput> context, CancellationToken ct)
         {
-            // Always return true for TransactionCommand; each child will decide its own CanExecute
+            // Always return true for TransactionCommandHandler; each child will decide its own CanExecute
             return true;
         }
 

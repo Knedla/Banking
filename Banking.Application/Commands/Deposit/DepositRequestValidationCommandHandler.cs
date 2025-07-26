@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Banking.Application.Commands.Deposit
 {
-    public class DepositRequestValidationCommand : IValidationCommand<DepositRequest, DepositResponse>
+    public class DepositRequestValidationCommandHandler : IValidationCommandHandler<DepositRequest, DepositResponse>
     {
         public Task<bool> CanExecuteAsync(CommandContext<DepositRequest, DepositResponse> ctx, CancellationToken ct)
             => Task.FromResult(true);

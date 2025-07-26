@@ -1,4 +1,9 @@
 ﻿namespace Banking.Application.Models.Requests
 {
-    public record TransferRequest(string FromAccountId, string ToAccountId, decimal Amount);
+    public class TransferRequest
+    {
+        public Guid FromAccountId { get; set; }
+        public Guid ToAccountId { get; set; }
+        public decimal Amount { get; set; }
+    }
 }

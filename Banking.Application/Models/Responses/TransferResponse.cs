@@ -1,4 +1,10 @@
 ﻿namespace Banking.Application.Models.Responses
 {
-    public record TransferResponse(string FromAccountId, string ToAccountId, decimal FromBalance, decimal ToBalance);
+    public class TransferResponse
+    {
+        public Guid FromAccountId { get; set; }
+        public Guid ToAccountId { get; set; }
+        public decimal FromNewBalance { get; set; }
+        public decimal ToNewBalance { get; set; }
+    }
 }

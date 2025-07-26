@@ -1,4 +1,8 @@
 ﻿namespace Banking.Application.Models.Responses
 {
-    public record DepositResponse(string AccountId, decimal Balance);
+    public class DepositResponse
+    {
+        public Guid AccountId { get; set; }
+        public decimal NewBalance { get; set; }
+    }
 }

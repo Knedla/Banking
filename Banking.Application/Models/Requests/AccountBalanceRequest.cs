@@ -1,4 +1,8 @@
 ﻿namespace Banking.Application.Models.Requests
 {
-    public record AccountBalanceRequest(string AccountId);
+    public class AccountBalanceRequest
+    {
+        public Guid AccountId { get; set; }
+        public Guid RequestingUserId { get; set; }
+    }
 }

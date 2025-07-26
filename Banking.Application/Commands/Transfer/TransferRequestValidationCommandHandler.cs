@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Banking.Application.Commands.Transfer
 {
-    public class TransferRequestValidationCommand : IValidationCommand<TransferRequest, TransferResponse>
+    public class TransferRequestValidationCommandHandler : IValidationCommandHandler<TransferRequest, TransferResponse>
     {
         public Task<bool> CanExecuteAsync(CommandContext<TransferRequest, TransferResponse> ctx, CancellationToken ct)
             => Task.FromResult(true);

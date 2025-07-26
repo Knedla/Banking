@@ -5,7 +5,7 @@ namespace Banking.API.Controllers
     public abstract class BaseCommandController //: ControllerBase
     {
         protected async Task/*<ActionResult*/<TOutput>/*>*/ ExecuteCommand<TInput, TOutput>(
-            ICommand<TInput, TOutput> command,
+            ICommandHandler<TInput, TOutput> command,
             TInput input,
             CancellationToken ct)
         {

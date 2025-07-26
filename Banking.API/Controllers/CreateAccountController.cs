@@ -10,7 +10,7 @@ namespace Banking.API.Controllers
     {
         //[HttpPost]
         public async Task/*<ActionResult*/<CreateAccountResponse>/*>*/ CreateAccount(
-            /*[FromServices]*/ ICommand<CreateAccountRequest, CreateAccountResponse> command,
+            /*[FromServices]*/ ICommandHandler<CreateAccountRequest, CreateAccountResponse> command,
             /*[FromBody]*/ CreateAccountRequest request,
             CancellationToken ct)
         {

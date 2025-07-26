@@ -10,7 +10,7 @@ namespace Banking.API.Controllers
     {
         //[HttpPost]
         public async Task/*<ActionResult*/<TransferResponse>/*>*/ Transfer(
-            /*[FromServices]*/ ICommand<TransferRequest, TransferResponse> command,
+            /*[FromServices]*/ ICommandHandler<TransferRequest, TransferResponse> command,
             /*[FromBody]*/ TransferRequest request,
             CancellationToken ct)
         {

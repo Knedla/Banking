@@ -10,7 +10,7 @@ namespace Banking.Application.Extensions
     public static class ServiceCollectionExtensions
     {
         private static readonly Dictionary<(Type Input, Type Output), List<(CommandPhaseType Phase, Type CommandType)>> _cache = new();
-        public static IServiceCollection AddTransactionCommandWithDiscovery(
+        public static IServiceCollection AddTransactionCommandHandlerWithDiscovery(
             this IServiceCollection services,
             Assembly assembly)
         {
@@ -51,8 +51,8 @@ namespace Banking.Application.Extensions
                         $"No IExecution<{input.Name}, {output.Name}> registered for transaction pipeline.");
                 }
 
-                var cmdType = typeof(TransactionCommand<,>).MakeGenericType(input, output);
-                var icmdType = typeof(ICommand<,>).MakeGenericType(input, output);
+                var cmdType = typeof(TransactionCommandHandler<,>).MakeGenericType(input, output);
+                var icmdType = typeof(ICommandHandler<,>).MakeGenericType(input, output);
 
                 services.AddTransient(icmdType, cmdType);
             }

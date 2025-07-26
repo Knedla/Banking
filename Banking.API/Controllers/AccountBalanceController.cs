@@ -10,7 +10,7 @@ namespace Banking.API.Controllers
     {
         //[HttpGet("{accountId}")]
         public async Task/*<ActionResult*/<AccountBalanceResponse>/*>*/ GetBalance(
-            /*[FromServices]*/ ICommand<AccountBalanceRequest, AccountBalanceResponse> command,
+            /*[FromServices]*/ ICommandHandler<AccountBalanceRequest, AccountBalanceResponse> command,
             /*[FromBody]*/ AccountBalanceRequest request,
             CancellationToken ct)
         {
