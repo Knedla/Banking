@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Banking.Application.Commands.AccountBalance
 {
-    public class AccountBalanceRequestValidationCommandHandler : IValidationCommandHandler<AccountBalanceRequest, AccountBalanceResponse>
+    public class AccountBalanceRequestValidationTransactionCommandHandler : IValidationTransactionCommandHandler<AccountBalanceRequest, AccountBalanceResponse>
     {
         public Task<bool> CanExecuteAsync(CommandContext<AccountBalanceRequest, AccountBalanceResponse> ctx, CancellationToken ct)
             => Task.FromResult(true);

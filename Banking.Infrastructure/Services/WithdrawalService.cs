@@ -3,11 +3,11 @@ using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
 using Banking.Domain.Repositories;
 
-public class WithdrawService : IWithdrawService
+public class WithdrawalService : IWithdrawalService
 {
     private readonly IAccountRepository _accountRepository;
 
-    public WithdrawService(IAccountRepository accountRepository)
+    public WithdrawalService(IAccountRepository accountRepository)
     {
         _accountRepository = accountRepository;
     }

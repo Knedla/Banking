@@ -3,16 +3,16 @@ using Banking.Application.Interfaces.Services;
 using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
 
-namespace Banking.Application.Commands.Withdraw
+namespace Banking.Application.Commands.Withdrawal
 {
-    public class WithdrawExecutionCommandHandler
-        : IExecutionCommandHandler<WithdrawalRequest, WithdrawalResponse>
+    public class WithdrawalExecutionTransactionCommandHandler
+        : IExecutionTransactionCommandHandler<WithdrawalRequest, WithdrawalResponse>
     {
-        private readonly IWithdrawService _withdrawService;
+        private readonly IWithdrawalService _withdrawalService;
 
-        public WithdrawExecutionCommandHandler(IWithdrawService withdrawService)
+        public WithdrawalExecutionTransactionCommandHandler(IWithdrawalService withdrawalService)
         {
-            _withdrawService = withdrawService;
+            _withdrawalService = withdrawalService;
         }
 
         public Task<bool> CanExecuteAsync(CommandContext<WithdrawalRequest, WithdrawalResponse> context, CancellationToken cancellationToken)
@@ -22,7 +22,7 @@ namespace Banking.Application.Commands.Withdraw
 
         public async Task ExecuteAsync(CommandContext<WithdrawalRequest, WithdrawalResponse> context, CancellationToken cancellationToken)
         {
-            var result = await _withdrawService.WithdrawAsync(context.Input);
+            var result = await _withdrawalService.WithdrawAsync(context.Input);
             context.Output = result;
         }
     }

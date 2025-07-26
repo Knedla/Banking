@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Banking.Application.Commands.Withdrawal
 {
-    public class WithdrawalRequestValidationCommandHandler : IValidationCommandHandler<WithdrawalRequest, WithdrawalResponse>
+    public class WithdrawalRequestValidationTransactionCommandHandler : IValidationTransactionCommandHandler<WithdrawalRequest, WithdrawalResponse>
     {
         public Task<bool> CanExecuteAsync(CommandContext<WithdrawalRequest, WithdrawalResponse> ctx, CancellationToken ct)
             => Task.FromResult(true);

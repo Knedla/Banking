@@ -3,7 +3,7 @@ using Banking.Application.Models.Responses;
 
 namespace Banking.Application.Interfaces.Services
 {
-    public interface IWithdrawService
+    public interface IWithdrawalService
     {
         Task<WithdrawalResponse> WithdrawAsync(WithdrawalRequest request);
     }

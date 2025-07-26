@@ -5,35 +5,35 @@ namespace Banking.Application.Helpers
 {
     public static class PhaseInterfaceHelper
     {
-        public static Type ResolveType(CommandPhaseType phase, Type inputType, Type outputType)
+        public static Type ResolveType(TransactionCommandPhaseType phase, Type inputType, Type outputType)
         {
             return phase switch
             {
-                CommandPhaseType.Initialization => typeof(IInitializationCommandHandler<,>).MakeGenericType(inputType, outputType),
-                CommandPhaseType.Validation => typeof(IValidationCommandHandler<,>).MakeGenericType(inputType, outputType),
-                CommandPhaseType.PreExecution => typeof(IPreExecutionCommandHandler<,>).MakeGenericType(inputType, outputType),
-                CommandPhaseType.Execution => typeof(IExecutionCommandHandler<,>).MakeGenericType(inputType, outputType),
-                CommandPhaseType.PostExecution => typeof(IPostExecutionCommandHandler<,>).MakeGenericType(inputType, outputType),
+                TransactionCommandPhaseType.Initialization => typeof(IInitializationTransactionCommandHandler<,>).MakeGenericType(inputType, outputType),
+                TransactionCommandPhaseType.Validation => typeof(IValidationTransactionCommandHandler<,>).MakeGenericType(inputType, outputType),
+                TransactionCommandPhaseType.PreExecution => typeof(IPreExecutionTransactionCommandHandler<,>).MakeGenericType(inputType, outputType),
+                TransactionCommandPhaseType.Execution => typeof(IExecutionTransactionCommandHandler<,>).MakeGenericType(inputType, outputType),
+                TransactionCommandPhaseType.PostExecution => typeof(IPostExecutionTransactionCommandHandler<,>).MakeGenericType(inputType, outputType),
                 _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, null)
             };
         }
 
         public static bool IsCommandPhaseInterface(Type iface)
         {
-            return iface == typeof(IInitializationCommandHandler<,>) ||
-                   iface == typeof(IValidationCommandHandler<,>) ||
-                   iface == typeof(IPreExecutionCommandHandler<,>) ||
-                   iface == typeof(IExecutionCommandHandler<,>) ||
-                   iface == typeof(IPostExecutionCommandHandler<,>);
+            return iface == typeof(IInitializationTransactionCommandHandler<,>) ||
+                   iface == typeof(IValidationTransactionCommandHandler<,>) ||
+                   iface == typeof(IPreExecutionTransactionCommandHandler<,>) ||
+                   iface == typeof(IExecutionTransactionCommandHandler<,>) ||
+                   iface == typeof(IPostExecutionTransactionCommandHandler<,>);
         }
 
-        public static CommandPhaseType GetPhaseFromInterface(Type iface)
+        public static TransactionCommandPhaseType GetPhaseFromInterface(Type iface)
         {
-            if (iface == typeof(IInitializationCommandHandler<,>)) return CommandPhaseType.Initialization;
-            if (iface == typeof(IValidationCommandHandler<,>)) return CommandPhaseType.Validation;
-            if (iface == typeof(IPreExecutionCommandHandler<,>)) return CommandPhaseType.PreExecution;
-            if (iface == typeof(IExecutionCommandHandler<,>)) return CommandPhaseType.Execution;
-            if (iface == typeof(IPostExecutionCommandHandler<,>)) return CommandPhaseType.PostExecution;
+            if (iface == typeof(IInitializationTransactionCommandHandler<,>)) return TransactionCommandPhaseType.Initialization;
+            if (iface == typeof(IValidationTransactionCommandHandler<,>)) return TransactionCommandPhaseType.Validation;
+            if (iface == typeof(IPreExecutionTransactionCommandHandler<,>)) return TransactionCommandPhaseType.PreExecution;
+            if (iface == typeof(IExecutionTransactionCommandHandler<,>)) return TransactionCommandPhaseType.Execution;
+            if (iface == typeof(IPostExecutionTransactionCommandHandler<,>)) return TransactionCommandPhaseType.PostExecution;
             throw new InvalidOperationException($"Unknown phase interface: {iface.Name}");
         }
     }

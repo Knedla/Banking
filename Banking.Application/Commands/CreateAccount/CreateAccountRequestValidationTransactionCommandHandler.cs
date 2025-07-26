@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Banking.Application.Commands.CreateAccount
 {
-    public class CreateAccountRequestValidationCommandHandler : IValidationCommandHandler<CreateAccountRequest, CreateAccountResponse>
+    public class CreateAccountRequestValidationTransactionCommandHandler : IValidationTransactionCommandHandler<CreateAccountRequest, CreateAccountResponse>
     {
         public Task<bool> CanExecuteAsync(CommandContext<CreateAccountRequest, CreateAccountResponse> ctx, CancellationToken ct)
             => Task.FromResult(true);

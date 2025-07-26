@@ -5,12 +5,12 @@ using Banking.Application.Models.Responses;
 
 namespace Banking.Application.Commands.CreateAccount
 {
-    public class CreateAccountExecutionCommandHandler
-        : IExecutionCommandHandler<CreateAccountRequest, CreateAccountResponse>
+    public class CreateAccountExecutionTransactionCommandHandler
+        : IExecutionTransactionCommandHandler<CreateAccountRequest, CreateAccountResponse>
     {
         private readonly ICreateAccountService _createAccountService;
 
-        public CreateAccountExecutionCommandHandler(ICreateAccountService createAccountService)
+        public CreateAccountExecutionTransactionCommandHandler(ICreateAccountService createAccountService)
         {
             _createAccountService = createAccountService;
         }

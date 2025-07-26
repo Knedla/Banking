@@ -1,16 +1,15 @@
 ﻿using Banking.Application.Commands.Common;
 using Banking.Application.Enumerations;
 using Banking.Application.Helpers;
-using Banking.Core.Commands.Transaction;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
-namespace Banking.Application.Extensions
+namespace Banking.API.Extension
 {
-    public static class ServiceCollectionExtensions
+    public static class ServiceCollectionCommandsExtensions
     {
-        private static readonly Dictionary<(Type Input, Type Output), List<(CommandPhaseType Phase, Type CommandType)>> _cache = new();
-        public static IServiceCollection AddTransactionCommandHandlerWithDiscovery(
+        private static readonly Dictionary<(Type Input, Type Output), List<(TransactionCommandPhaseType Phase, Type CommandType)>> _cache = new();
+        public static IServiceCollection AddBankingApplicationTransactionCommandHandlersWithDiscovery(
             this IServiceCollection services,
             Assembly assembly)
         {
@@ -44,7 +43,7 @@ namespace Banking.Application.Extensions
 
             foreach (var ((input, output), commands) in _cache)
             {
-                var executionRegistered = commands.Any(x => x.Phase == CommandPhaseType.Execution);
+                var executionRegistered = commands.Any(x => x.Phase == TransactionCommandPhaseType.Execution);
                 if (!executionRegistered)
                 {
                     throw new InvalidOperationException(
@@ -52,7 +51,7 @@ namespace Banking.Application.Extensions
                 }
 
                 var cmdType = typeof(TransactionCommandHandler<,>).MakeGenericType(input, output);
-                var icmdType = typeof(ICommandHandler<,>).MakeGenericType(input, output);
+                var icmdType = typeof(ITransactionCommandHandler<,>).MakeGenericType(input, output);
 
                 services.AddTransient(icmdType, cmdType);
             }

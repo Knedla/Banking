@@ -5,12 +5,12 @@ using Banking.Application.Models.Responses;
 
 namespace Banking.Application.Commands.Transfer
 {
-    public class TransferExecutionCommandHandler
-        : IExecutionCommandHandler<TransferRequest, TransferResponse>
+    public class TransferExecutionTransactionCommandHandler
+        : IExecutionTransactionCommandHandler<TransferRequest, TransferResponse>
     {
         private readonly ITransferService _transferService;
 
-        public TransferExecutionCommandHandler(ITransferService transferService)
+        public TransferExecutionTransactionCommandHandler(ITransferService transferService)
         {
             _transferService = transferService;
         }

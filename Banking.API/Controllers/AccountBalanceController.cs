@@ -10,9 +10,9 @@ namespace Banking.API.Controllers
     {
         //[HttpGet("{accountId}")]
         public async Task/*<ActionResult*/<AccountBalanceResponse>/*>*/ GetBalance(
-            /*[FromServices]*/ ICommandHandler<AccountBalanceRequest, AccountBalanceResponse> command,
-            /*[FromBody]*/ AccountBalanceRequest request,
-            CancellationToken ct)
+        /*[FromServices]*/ ICommandHandler<AccountBalanceRequest, AccountBalanceResponse> command,
+        /*[FromBody]*/ AccountBalanceRequest request,
+        CancellationToken ct)
         {
             return /*remove await*/await ExecuteCommand(command, request, ct);
         }

@@ -5,12 +5,12 @@ using Banking.Application.Models.Responses;
 
 namespace Banking.Application.Commands.AccountBalance
 {
-    public class AccountBalanceExecutionCommandHandler
-        : IExecutionCommandHandler<AccountBalanceRequest, AccountBalanceResponse>
+    public class AccountBalanceExecutionTransactionCommandHandler
+        : IExecutionTransactionCommandHandler<AccountBalanceRequest, AccountBalanceResponse>
     {
         private readonly IGetBalanceService _getBalanceService;
 
-        public AccountBalanceExecutionCommandHandler(IGetBalanceService getBalanceService)
+        public AccountBalanceExecutionTransactionCommandHandler(IGetBalanceService getBalanceService)
         {
             _getBalanceService = getBalanceService;
         }

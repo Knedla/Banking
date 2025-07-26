@@ -5,12 +5,12 @@ using Banking.Application.Models.Responses;
 
 namespace Banking.Application.Commands.Deposit
 {
-    public class DepositExecutionCommandHandler
-        : IExecutionCommandHandler<DepositRequest, DepositResponse>
+    public class DepositExecutionTransactionCommandHandler
+        : IExecutionTransactionCommandHandler<DepositRequest, DepositResponse>
     {
         private readonly IDepositService _depositService;
 
-        public DepositExecutionCommandHandler(IDepositService depositService)
+        public DepositExecutionTransactionCommandHandler(IDepositService depositService)
         {
             _depositService = depositService;
         }
