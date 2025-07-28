@@ -1,54 +1,53 @@
 ﻿using Banking.Application.Interfaces.Services;
 using System.Diagnostics;
 
-namespace Banking.Application.Commands.Common
+namespace Banking.Application.Commands.Common;
+
+public class TransactionCommandHandler<TInput, TOutput> : ICommandHandler<TInput, TOutput>
 {
-    public class TransactionCommandHandler<TInput, TOutput> : ICommandHandler<TInput, TOutput>
+    private readonly ILoggerService? _logger;
+    private readonly ITelemetryService? _telemetry;
+    private readonly IReadOnlyList<ITransactionCommandHandler<TInput, TOutput>> _commands;
+
+    public TransactionCommandHandler(
+        IEnumerable<ITransactionCommandHandler<TInput, TOutput>> commands,
+        ILoggerService? logger = null,
+        ITelemetryService? telemetry = null)
     {
-        private readonly ILoggerService? _logger;
-        private readonly ITelemetryService? _telemetry;
-        private readonly IReadOnlyList<ITransactionCommandHandler<TInput, TOutput>> _commands;
+        _logger = logger;
+        _telemetry = telemetry;
+        _commands = commands.ToList();
+    }
 
-        public TransactionCommandHandler(
-            IEnumerable<ITransactionCommandHandler<TInput, TOutput>> commands,
-            ILoggerService? logger = null,
-            ITelemetryService? telemetry = null)
-        {
-            _logger = logger;
-            _telemetry = telemetry;
-            _commands = commands.ToList();
-        }
+    public Task<bool> CanExecuteAsync(CommandContext<TInput, TOutput> context, CancellationToken ct)
+    {
+        return Task.FromResult(true);
+    }
 
-        public Task<bool> CanExecuteAsync(CommandContext<TInput, TOutput> context, CancellationToken ct)
+    public async Task ExecuteAsync(CommandContext<TInput, TOutput> context, CancellationToken ct)
+    {
+        foreach (var command in _commands)
         {
-            return Task.FromResult(true);
-        }
+            if (!await command.CanExecuteAsync(context, ct))
+                return; // break and return, do not continue
 
-        public async Task ExecuteAsync(CommandContext<TInput, TOutput> context, CancellationToken ct)
-        {
-            foreach (var command in _commands)
+            try
             {
-                if (!await command.CanExecuteAsync(context, ct))
-                    return; // break and return, do not continue
+                context.Log($"Executing {command.GetType().Name}...");
+                var stopwatch = Stopwatch.StartNew(); // move to some config so it can be turned on and off
 
-                try
-                {
-                    context.Log($"Executing {command.GetType().Name}...");
-                    var stopwatch = Stopwatch.StartNew(); // move to some config so it can be turned on and off
+                await command.ExecuteAsync(context, ct);
 
-                    await command.ExecuteAsync(context, ct);
-
-                    stopwatch.Stop();
-                    context.Log($"{command.GetType().Name} completed in {stopwatch.ElapsedMilliseconds}ms");
-                }
-                catch (Exception ex)
-                {
-                    context.Log($"{command.GetType().Name} failed: {ex.Message}");
-                    throw;
-                }
+                stopwatch.Stop();
+                context.Log($"{command.GetType().Name} completed in {stopwatch.ElapsedMilliseconds}ms");
             }
-
-            context.Log($"Transaction completed in {context.TotalStopwatch.ElapsedMilliseconds}ms");
+            catch (Exception ex)
+            {
+                context.Log($"{command.GetType().Name} failed: {ex.Message}");
+                throw;
+            }
         }
+
+        context.Log($"Transaction completed in {context.TotalStopwatch.ElapsedMilliseconds}ms");
     }
 }

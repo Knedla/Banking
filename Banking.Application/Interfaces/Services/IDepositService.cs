@@ -1,10 +1,9 @@
 ﻿using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
 
-namespace Banking.Application.Interfaces.Services
+namespace Banking.Application.Interfaces.Services;
+
+public interface IDepositService
 {
-    public interface IDepositService
-    {
-        Task<DepositResponse> DepositAsync(DepositRequest request);
-    }
+    Task<DepositResponse> DepositAsync(DepositRequest request);
 }

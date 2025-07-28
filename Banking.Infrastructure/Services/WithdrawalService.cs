@@ -3,6 +3,8 @@ using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
 using Banking.Domain.Repositories;
 
+namespace Banking.Infrastructure.Services;
+
 public class WithdrawalService : IWithdrawalService
 {
     private readonly IAccountRepository _accountRepository;
@@ -15,14 +17,14 @@ public class WithdrawalService : IWithdrawalService
     public async Task<WithdrawalResponse> WithdrawAsync(WithdrawalRequest request)
     {
         var account = await _accountRepository.GetByIdAsync(request.AccountId);
-        account.Balance -= request.Amount;
+        //account.Balance -= request.Amount;
 
         await _accountRepository.UpdateAsync(account);
 
         return new WithdrawalResponse
         {
             AccountId = account.Id,
-            NewBalance = account.Balance,
+            //NewBalance = account.Balance,
             ConfirmationNumber = Guid.NewGuid().ToString()
         };
     }

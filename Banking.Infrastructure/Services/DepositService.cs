@@ -3,6 +3,8 @@ using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
 using Banking.Domain.Repositories;
 
+namespace Banking.Infrastructure.Services;
+
 public class DepositService : IDepositService
 {
     private readonly IAccountRepository _accountRepository;
@@ -15,14 +17,14 @@ public class DepositService : IDepositService
     public async Task<DepositResponse> DepositAsync(DepositRequest request)
     {
         var account = await _accountRepository.GetByIdAsync(request.AccountId);
-        account.Balance += request.Amount;
+        //account.Balance += request.Amount;
 
         await _accountRepository.UpdateAsync(account);
 
         return new DepositResponse
         {
             AccountId = account.Id,
-            NewBalance = account.Balance
+            //NewBalance = account.Balance
         };
     }
 }

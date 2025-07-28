@@ -1,22 +1,21 @@
-﻿using Banking.Domain.Entities;
+﻿using Banking.Domain.Entities.Accounts;
 
-namespace Banking.Domain.Repositories
+namespace Banking.Domain.Repositories;
+
+public interface IBankingDataStore
 {
-    public interface IBankingDataStore
-    {
-        List<Customer> Customers { get; }
-        List<AccountType> AccountTypes { get; }
-        List<Account> Accounts { get; }
+    //List<Customer> Customers { get; }
+    //List<AccountType> AccountTypes { get; }
+    List<Account> Accounts { get; }
 
-        Task BeginTransactionAsync();
-        Task CommitAsync();
-        Task RollbackAsync();
+    Task BeginTransactionAsync();
+    Task CommitAsync();
+    Task RollbackAsync();
 
-        Task SaveAsync(); // <-- flush but don’t commit
+    Task SaveAsync(); // <-- flush but don’t commit
 
-        // Nested / Savepoint Support
-        Task CreateSavepointAsync();
-        Task RollbackToSavepointAsync();
-        Task ReleaseSavepointAsync();
-    }
+    // Nested / Savepoint Support
+    Task CreateSavepointAsync();
+    Task RollbackToSavepointAsync();
+    Task ReleaseSavepointAsync();
 }

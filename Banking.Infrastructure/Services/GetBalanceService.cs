@@ -3,6 +3,8 @@ using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
 using Banking.Domain.Repositories;
 
+namespace Banking.Infrastructure.Services;
+
 public class GetBalanceService : IGetBalanceService
 {
     private readonly IAccountRepository _accountRepository;
@@ -18,7 +20,7 @@ public class GetBalanceService : IGetBalanceService
         return new AccountBalanceResponse
         {
             AccountId = account.Id,
-            Balance = account.Balance
+            //Balance = account.Balance
         };
     }
 }

@@ -1,10 +1,13 @@
-﻿namespace Banking.Application.Models.Responses
+﻿namespace Banking.Application.Models.Responses;
+
+public class TransferResponse
 {
-    public class TransferResponse
-    {
-        public Guid FromAccountId { get; set; }
-        public Guid ToAccountId { get; set; }
-        public decimal FromNewBalance { get; set; }
-        public decimal ToNewBalance { get; set; }
-    }
+    public Guid TransactionId {  get; set; }
+    public Guid SourceAccountId { get; set; }
+    public Guid DestinationAccountId { get; set; }
+    public Guid InvolvedPartyId { get; set; }
+    public decimal Amount { get; set; }
+    public string Currency { get; set; }
+    public bool IsSuccess { get; set; }
+    public DateTime Timestamp { get; set; }
 }

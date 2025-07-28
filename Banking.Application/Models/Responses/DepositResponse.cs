@@ -1,8 +1,7 @@
-﻿namespace Banking.Application.Models.Responses
+﻿namespace Banking.Application.Models.Responses;
+
+public class DepositResponse
 {
-    public class DepositResponse
-    {
-        public Guid AccountId { get; set; }
-        public decimal NewBalance { get; set; }
-    }
+    public Guid AccountId { get; set; }
+    public decimal NewBalance { get; set; }
 }

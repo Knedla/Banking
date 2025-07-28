@@ -1,9 +1,8 @@
-﻿namespace Banking.Application.Attributes
+﻿namespace Banking.Application.Attributes;
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class PhaseOrderAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Class)]
-    public sealed class PhaseOrderAttribute : Attribute
-    {
-        public int Order { get; }
-        public PhaseOrderAttribute(int order) => Order = order;
-    }
+    public int Order { get; }
+    public PhaseOrderAttribute(int order) => Order = order;
 }

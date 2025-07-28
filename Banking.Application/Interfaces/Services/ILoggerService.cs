@@ -1,7 +1,6 @@
-﻿namespace Banking.Application.Interfaces.Services
+﻿namespace Banking.Application.Interfaces.Services;
+
+public interface ILoggerService // TODO: implement this ...
 {
-    public interface ILoggerService // implement this ...
-    {
-        void Log(string text);
-    }
+    void Log(string text);
 }

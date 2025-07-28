@@ -1,16 +1,15 @@
-﻿namespace Banking.Domain.Repositories
+﻿namespace Banking.Domain.Repositories;
+
+public interface IUnitOfWork : IAsyncDisposable
 {
-    public interface IUnitOfWork : IAsyncDisposable
-    {
-        Task BeginTransactionAsync();
-        Task CommitAsync();
-        Task RollbackAsync();
+    Task BeginTransactionAsync();
+    Task CommitAsync();
+    Task RollbackAsync();
 
-        Task SaveAsync(); // <-- flush but don’t commit
+    Task SaveAsync(); // <-- flush but don’t commit
 
-        // Nested / Savepoint Support
-        Task CreateSavepointAsync();
-        Task RollbackToSavepointAsync();
-        Task ReleaseSavepointAsync();
-    }
+    // Nested / Savepoint Support
+    Task CreateSavepointAsync();
+    Task RollbackToSavepointAsync();
+    Task ReleaseSavepointAsync();
 }
