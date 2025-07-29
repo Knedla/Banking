@@ -1,6 +1,6 @@
 ﻿namespace Banking.Application.Models.Responses;
 
-public class TransferResponse
+public class TransferResponse : BaseResponse
 {
     public Guid TransactionId {  get; set; }
     public Guid SourceAccountId { get; set; }

@@ -9,5 +9,5 @@ public class EmailAddress
     public string Email { get; set; }
     public EmailType Type { get; set; }
     public bool IsVerified { get; set; }
-    public List<ContactPurpose> Purposes { get; set; }
+    public ContactPurpose Purposes { get; set; }
 }

@@ -11,6 +11,7 @@ public static class ServiceRegistration
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
         // Banking.Infrastructure
+        services.AddScoped<ICreateAccountRequestService, CreateAccountRequestService>();
         services.AddScoped<ICreateAccountService, CreateAccountService>();
         services.AddScoped<IGetBalanceService, GetBalanceService>();
         services.AddScoped<IDepositService, DepositService>();

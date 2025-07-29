@@ -1,6 +1,6 @@
 ﻿namespace Banking.Application.Models.Responses;
 
-public class DepositResponse
+public class DepositResponse : BaseResponse
 {
     public Guid AccountId { get; set; }
     public decimal NewBalance { get; set; }

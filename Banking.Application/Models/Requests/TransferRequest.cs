@@ -1,6 +1,6 @@
 ﻿namespace Banking.Application.Models.Requests;
 
-public class TransferRequest
+public class TransferRequest : BaseRequest
 {
     public Guid FromAccountId { get; set; }
     public Guid ToAccountId { get; set; }

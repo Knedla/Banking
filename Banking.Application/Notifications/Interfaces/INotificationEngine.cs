@@ -1,4 +1,4 @@
-﻿using Banking.Domain.Events;
+﻿using Banking.Domain.Interfaces;
 
 namespace Banking.Application.Notifications.Interfaces;
 

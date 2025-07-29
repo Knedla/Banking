@@ -1,22 +1,22 @@
 ﻿using Banking.Application.Commands.Common;
 using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
-using System.ComponentModel.DataAnnotations;
+using Banking.Domain.Enumerations;
 
 namespace Banking.Application.Commands.CreateAccount;
 
-public class CreateAccountRequestValidationTransactionCommandHandler : IValidationTransactionCommandHandler<CreateAccountRequest, CreateAccountResponse>
+public class CreateAccountRequestValidationTransactionCommandHandler : IValidationTransactionCommandHandler<CreateAccountRequestRequest, CreateAccountRequestResponse>
 {
-    public Task<bool> CanExecuteAsync(CommandContext<CreateAccountRequest, CreateAccountResponse> ctx, CancellationToken ct)
+    public Task<bool> CanExecuteAsync(CommandContext<CreateAccountRequestRequest, CreateAccountRequestResponse> ctx, CancellationToken ct)
         => Task.FromResult(true);
 
-    public Task ExecuteAsync(CommandContext<CreateAccountRequest, CreateAccountResponse> ctx, CancellationToken ct)
+    public Task ExecuteAsync(CommandContext<CreateAccountRequestRequest, CreateAccountRequestResponse> ctx, CancellationToken ct)
     {
-        if (ctx.Input.CustomerId == null)
-            throw new ValidationException("CustomerId is required");
+        if (ctx.Input.InvolvedPartyId == Guid.Empty)
+            ctx.Output.AddError("InvolvedPartyId is required");
 
-        if (ctx.Input.AccountType is not ("Checking" or "Savings"))
-            throw new ValidationException("Invalid account type");
+        if (ctx.Input.AccountType is (AccountType.Loan or AccountType.Credit))
+            ctx.Output.AddError("Invalid account type");
 
         return Task.CompletedTask;
     }

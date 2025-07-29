@@ -1,3 +1,9 @@
-﻿namespace Banking.Application.Commands.Common;
+﻿using Banking.Application.Models.Requests;
+using Banking.Application.Models.Responses;
 
-public interface IInitializationTransactionCommandHandler<TInput, TOutput> : ITransactionCommandHandler<TInput, TOutput> { }
+namespace Banking.Application.Commands.Common;
+
+public interface IInitializationTransactionCommandHandler<TInput, TOutput> : ITransactionCommandHandler<TInput, TOutput>
+    where TInput : BaseRequest
+    where TOutput : BaseResponse, new()
+{ }

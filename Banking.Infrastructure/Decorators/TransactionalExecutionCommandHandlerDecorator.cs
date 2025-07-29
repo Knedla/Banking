@@ -1,9 +1,13 @@
 ﻿using Banking.Application.Commands.Common;
+using Banking.Application.Models.Requests;
+using Banking.Application.Models.Responses;
 using Banking.Domain.Repositories;
 
 namespace Banking.Infrastructure.Decorators;
 
-public class TransactionalExecutionCommandHandlerDecorator<TInput, TOutput> : IExecutionTransactionCommandHandler<TInput, TOutput>
+public class TransactionalExecutionCommandHandlerDecorator<TInput, TOutput> : IExecutionTransactionCommandHandler<TInput, TOutput> 
+    where TInput : BaseRequest
+    where TOutput : BaseResponse, new()
 {
     private readonly IExecutionTransactionCommandHandler<TInput, TOutput> _inner;
     private readonly IUnitOfWork _unitOfWork;

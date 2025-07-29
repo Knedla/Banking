@@ -1,11 +1,15 @@
-﻿using System.Diagnostics;
+﻿using Banking.Application.Models.Requests;
+using Banking.Application.Models.Responses;
+using System.Diagnostics;
 
 namespace Banking.Application.Commands.Common;
 
-public class CommandContext<TInput, TOutput>
+public class CommandContext<TInput, TOutput> 
+    where TInput : BaseRequest 
+    where TOutput : BaseResponse, new()
 {
     public TInput Input { get; }
-    public TOutput Output { get; set; }
+    public TOutput Output { get; set; } = new();
     public IDictionary<string, object> Data { get; } = new Dictionary<string, object>();
     public List<string> Logs { get; } = new();
     public Stopwatch TotalStopwatch { get; } = Stopwatch.StartNew();

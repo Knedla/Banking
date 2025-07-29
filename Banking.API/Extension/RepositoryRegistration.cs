@@ -10,6 +10,7 @@ public static class RepositoryRegistration
     {
         // Register services
         services.AddScoped<IAccountRepository, AccountRepository>();
+        services.AddScoped<IWorkItemRepository, WorkItemRepository>();
 
         return services;
     }

@@ -2,7 +2,7 @@
 
 namespace Banking.Application.Models.Responses;
 
-public class InvolvedPartyResponse
+public class InvolvedPartyResponse : BaseResponse
 {
     public InvolvedParty InvolvedParty { get; set; }
 }

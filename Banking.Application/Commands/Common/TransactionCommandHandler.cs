@@ -1,9 +1,13 @@
 ﻿using Banking.Application.Interfaces.Services;
+using Banking.Application.Models.Requests;
+using Banking.Application.Models.Responses;
 using System.Diagnostics;
 
 namespace Banking.Application.Commands.Common;
 
 public class TransactionCommandHandler<TInput, TOutput> : ICommandHandler<TInput, TOutput>
+    where TInput : BaseRequest
+    where TOutput : BaseResponse, new()
 {
     private readonly ILoggerService? _logger;
     private readonly ITelemetryService? _telemetry;
@@ -40,6 +44,9 @@ public class TransactionCommandHandler<TInput, TOutput> : ICommandHandler<TInput
 
                 stopwatch.Stop();
                 context.Log($"{command.GetType().Name} completed in {stopwatch.ElapsedMilliseconds}ms");
+
+                if (!context.Output.ContinueExecution)
+                    break;
             }
             catch (Exception ex)
             {

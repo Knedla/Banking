@@ -1,12 +1,17 @@
 ﻿using Banking.Domain.Entities.Accounts;
+using Banking.Domain.Entities.Parties;
+using Banking.Domain.Entities.WorkItems;
+using Banking.Domain.Interfaces.Entities;
 
 namespace Banking.Domain.Repositories;
 
 public interface IBankingDataStore
 {
-    //List<Customer> Customers { get; }
-    //List<AccountType> AccountTypes { get; }
+    List<WorkItem> WorkItems { get; }
+    List<Individual> Individuals { get; }
     List<Account> Accounts { get; }
+
+    List<T> Get<T>() where T : class, IEntity;
 
     Task BeginTransactionAsync();
     Task CommitAsync();

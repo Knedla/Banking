@@ -1,5 +1,5 @@
-﻿using Banking.Application.Common;
-using Banking.Domain.Events;
+﻿using Banking.Application.Interfaces;
+using Banking.Domain.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Banking.Infrastructure.Events;
@@ -20,7 +20,7 @@ public class DomainEventDispatcher : IDomainEventDispatcher
 
         // Resolve all registered handlers for TEvent
         var handlers = _serviceProvider
-            .GetServices<IDomainEventHandler<TEvent>>();
+        .GetServices<IDomainEventHandler<TEvent>>();
 
         foreach (var handler in handlers)
         {

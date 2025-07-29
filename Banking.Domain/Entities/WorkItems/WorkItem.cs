@@ -1,24 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Banking.Domain.Enumerations;
+using Banking.Domain.Interfaces.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace Banking.Domain.Entities.WorkItems;
 
-public class WorkItem
+public abstract class WorkItem : BaseEntity, IRuleEntity
 {
-    [Key]
-    public Guid Id { get; set; }
-
     [Required]
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public WorkItemStatus Status { get; set; }
 
-    [Required]
-    public Guid CreatedByUserId { get; set; }
+    [MaxLength(500)]
+    public string? Description { get; set; }
 
-    [Required]
-    public DateTime ModifiedAt { get; set; }
-
-    [Required]
-    public Guid ModifiedByUserId { get; set; }
-
-    // public ICollection<ApprovalPolicy> Policies { get; set; }
-    // public ICollection<RequestValidator> Validators { get; set; }
+    // Common navigation properties
+    public ICollection<AppliedRule> AppliedRules { get; set; }
 }

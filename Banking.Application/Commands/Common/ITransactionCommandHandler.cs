@@ -1,4 +1,7 @@
-﻿namespace Banking.Application.Commands.Common;
+﻿using Banking.Application.Models.Requests;
+using Banking.Application.Models.Responses;
+
+namespace Banking.Application.Commands.Common;
 
 // ideas:
 // attribude
@@ -12,4 +15,7 @@
 // also add a parameter to determine whether the TransactionCommandHandler should wait for the transaction command result
 // for example, the execution transaction is complete, but the post-execution transaction needs to do something, and the result of that is not needed
 // because of that, the TransactionCommandHandler command does not have to wait for a response, but can continue with the execution
-public interface ITransactionCommandHandler<TInput, TOutput> : ICommandHandler<TInput, TOutput> { }
+public interface ITransactionCommandHandler<TInput, TOutput> : ICommandHandler<TInput, TOutput> 
+    where TInput : BaseRequest
+    where TOutput : BaseResponse, new()
+{ }

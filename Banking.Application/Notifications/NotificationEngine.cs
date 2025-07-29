@@ -1,10 +1,9 @@
-﻿using Banking.Application.Common.Expressions;
-using Banking.Application.Interfaces;
+﻿using Banking.Application.Interfaces;
 using Banking.Application.Interfaces.Services;
 using Banking.Application.Models.Requests;
 using Banking.Application.Notifications.Interfaces;
 using Banking.Application.Notifications.Routing;
-using Banking.Domain.Events;
+using Banking.Domain.Interfaces;
 
 namespace Banking.Application.Notifications;
 

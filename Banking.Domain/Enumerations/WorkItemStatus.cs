@@ -1,6 +1,6 @@
 ﻿namespace Banking.Domain.Enumerations;
 
-public enum ReversalRequestStatus
+public enum WorkItemStatus
 {
     Pending = 0,
     Approved = 1,

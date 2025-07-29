@@ -2,8 +2,10 @@
 
 public enum AccountType
 { 
-    Standard, 
-    Savings, 
+    Standard,
+    Checking,
+    Savings,
+    Business,
     Loan, 
     Credit 
 }

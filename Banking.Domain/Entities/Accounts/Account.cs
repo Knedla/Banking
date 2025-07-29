@@ -5,13 +5,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Banking.Domain.Entities.Accounts;
 
-public class Account
+public class Account : BaseEntity
 {
-    [Key]
-    public Guid Id { get; set; }
-
     [Required]
-    public int InvolvedPartyId { get; set; }
+    public Guid InvolvedPartyId { get; set; }
 
     [StringLength(50)]
     public string? AccountNumber { get; set; }
@@ -30,16 +27,16 @@ public class Account
     public string? PrimaryCurrencyCode { get; set; }
 
     [Required]
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
 
     [Required]
     public Guid CreatedByUserId { get; set; }
 
     [Required]
-    public DateTime ModifiedAt { get; set; }
+    public DateTime LastModifiedAt { get; set; }
 
     [Required]
-    public Guid ModifiedByUserId { get; set; }
+    public Guid LastModifiedByUserId { get; set; }
 
     // Common navigation properties
     [Required]

@@ -4,11 +4,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Banking.Domain.Entities.Parties;
 
-public abstract class InvolvedParty
+public abstract class InvolvedParty : BaseEntity
 {
-    [Key]
-    public Guid Id { get; set; }
-
     [Required, StringLength(200)]
     public string Name { get; set; }
 

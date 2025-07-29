@@ -1,9 +1,9 @@
-﻿namespace Banking.Application.Models.Requests;
+﻿using Banking.Domain.Entities.WorkItems;
 
-public class CreateAccountRequest
+namespace Banking.Application.Models.Requests;
+
+public class CreateAccountRequest : BaseRequest
 {
-    public Guid CustomerId { get; set; }
-    public string OwnerName { get; set; }
-    public string AccountType { get; set; }
-    public decimal InitialDeposit { get; set; }
+    public Guid WorkItemId { get; set; }
+    public WorkItem WorkItem { get; set; } // TODO: make DTO
 }

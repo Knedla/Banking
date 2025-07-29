@@ -1,6 +1,9 @@
 ﻿using Banking.Application.Commands.Common;
 using Banking.Application.Enumerations;
 using Banking.Application.Helpers;
+using Banking.Application.Interfaces.Factories;
+using Banking.Infrastructure.Decorators;
+using Banking.Infrastructure.Factories;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
@@ -55,6 +58,18 @@ public static class TransactionCommandsRegistration
 
             services.AddTransient(icmdType, cmdType);
         }
+
+        services.Scan(scan => scan
+            .FromAssembliesOf(typeof(IExecutionTransactionCommandHandler<,>))
+            .AddClasses(classes => classes.AssignableTo(typeof(IExecutionTransactionCommandHandler<,>)))
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
+
+        services.Decorate(
+            typeof(IExecutionTransactionCommandHandler<,>),
+            typeof(TransactionalExecutionCommandHandlerDecorator<,>));
+
+        services.AddScoped<ITransactionCommandHandlerFactory, TransactionCommandHandlerFactory>();
 
         return services;
     }

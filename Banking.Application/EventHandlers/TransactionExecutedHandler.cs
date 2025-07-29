@@ -1,8 +1,8 @@
 ﻿using Banking.Application.Events;
+using Banking.Application.Interfaces;
 using Banking.Application.Notifications.Interfaces;
-using Banking.Domain.Events;
 
-namespace Banking.Application.Commands.Transfer;
+namespace Banking.Application.EventHandlers;
 
 public class TransactionExecutedHandler : IDomainEventHandler<TransactionExecutedEvent>
 {

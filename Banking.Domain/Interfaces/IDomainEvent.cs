@@ -1,4 +1,4 @@
-﻿namespace Banking.Domain.Events;
+﻿namespace Banking.Domain.Interfaces;
 
 public interface IDomainEvent
 {

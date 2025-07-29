@@ -1,7 +1,7 @@
 ﻿using Banking.Application.Interfaces;
 using Banking.Application.Notifications.Rules;
 using Banking.Domain.Entities;
-using Banking.Domain.Events;
+using Banking.Domain.Interfaces;
 
 namespace Banking.Application.Notifications;
 

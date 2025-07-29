@@ -9,11 +9,13 @@ namespace Banking.API.Controllers;
 public class CreateAccountController : BaseCommandController
 {
     //[HttpPost]
-    public async Task/*<ActionResult*/<CreateAccountResponse>/*>*/ CreateAccount(
-        /*[FromServices]*/ ICommandHandler<CreateAccountRequest, CreateAccountResponse> command,
-        /*[FromBody]*/ CreateAccountRequest request,
+    public async Task/*<ActionResult*/<CreateAccountRequestResponse>/*>*/ CreateAccount(
+        /*[FromServices]*/ ICommandHandler<CreateAccountRequestRequest, CreateAccountRequestResponse> command,
+        /*[FromBody]*/ CreateAccountRequestRequest request,
         CancellationToken ct)
     {
-        return /*remove await*/await ExecuteCommand(command, request, ct);
+        var result = await ExecuteCommand(command, request, ct);
+        return result;
+        //return /*remove await*/await ExecuteCommand(command, request, ct);
     }
 }

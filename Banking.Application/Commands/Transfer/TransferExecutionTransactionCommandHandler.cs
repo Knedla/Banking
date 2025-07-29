@@ -1,6 +1,6 @@
 ﻿using Banking.Application.Commands.Common;
-using Banking.Application.Common;
 using Banking.Application.Events;
+using Banking.Application.Interfaces;
 using Banking.Application.Interfaces.Services;
 using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;

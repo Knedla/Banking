@@ -10,5 +10,5 @@ public class PhoneNumber
     public string Number { get; set; }
     public PhoneType Type { get; set; }
     public bool IsVerified { get; set; }
-    public List<ContactPurpose> Purposes { get; set; }
+    public ContactPurpose Purposes { get; set; }
 }

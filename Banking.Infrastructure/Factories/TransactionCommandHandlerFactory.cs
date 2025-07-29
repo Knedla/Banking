@@ -5,6 +5,8 @@ using Banking.Application.Enumerations;
 using Banking.Application.Helpers;
 using Banking.Application.Interfaces.Factories;
 using Banking.Application.Interfaces.Services;
+using Banking.Application.Models.Requests;
+using Banking.Application.Models.Responses;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Banking.Infrastructure.Factories;
@@ -18,7 +20,9 @@ public class TransactionCommandHandlerFactory : ITransactionCommandHandlerFactor
         _provider = provider;
     }
 
-    public ICommandHandler<TInput, TOutput> Create<TInput, TOutput>()
+    public ICommandHandler<TInput, TOutput> Create<TInput, TOutput>() 
+        where TInput : BaseRequest
+        where TOutput : BaseResponse, new()
     {
         var logger = _provider.GetService<ILoggerService>();
         var telemetry = _provider.GetService<ITelemetryService>();

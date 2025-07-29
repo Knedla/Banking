@@ -1,6 +1,6 @@
-﻿using Banking.Domain.Events;
+﻿using Banking.Domain.Interfaces;
 
-namespace Banking.Application.Common;
+namespace Banking.Application.Interfaces;
 
 public interface IDomainEventDispatcher
 {

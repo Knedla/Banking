@@ -23,7 +23,7 @@ public class NotificationDestinationResolver : INotificationDestinationResolver
 
     List<string> GetEmails(InvolvedParty involvedParty)
     {
-        var emails = involvedParty.Emails?.Where(s => s.Purposes.Any(q => q == ContactPurpose.Billing)).ToList();
+        var emails = involvedParty.Emails?.Where(s => s.Purposes.HasFlag(ContactPurpose.Billing)).ToList();
         if (emails == null)
             return null;
 
@@ -32,7 +32,7 @@ public class NotificationDestinationResolver : INotificationDestinationResolver
 
     List<string> GetSMS(InvolvedParty involvedParty)
     {
-        var phoneNumbers = involvedParty.PhoneNumbers.Where(s => s.Purposes.Any(q => q == ContactPurpose.Billing)).ToList();
+        var phoneNumbers = involvedParty.PhoneNumbers?.Where(s => s.Purposes.HasFlag(ContactPurpose.Billing)).ToList();
         if (phoneNumbers == null)
             return null;
 
