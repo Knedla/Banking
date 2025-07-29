@@ -2,4 +2,4 @@
 
 namespace Banking.Application.Events;
 
-public record LowBalanceEvent(Guid AccountId, decimal CurrentBalance, decimal Threshold) : IDomainEvent;
+public record LowBalanceEvent(Guid InvolvedPartyId, decimal CurrentBalance, decimal Threshold) : IDomainEvent;

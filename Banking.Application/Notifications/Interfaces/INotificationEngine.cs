@@ -2,7 +2,7 @@
 
 namespace Banking.Application.Notifications.Interfaces;
 
-public interface INotificationEngine
+public interface INotificationEngine<TEvent> where TEvent : IDomainEvent
 {
-    Task HandleEventAsync(IDomainEvent domainEvent);
+    Task HandleEventAsync(TEvent domainEvent);
 }

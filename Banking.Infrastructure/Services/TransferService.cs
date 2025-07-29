@@ -27,8 +27,8 @@ public class TransferService : ITransferService
 
         return new TransferResponse
         {
-            FromAccountId = from.Id,
-            ToAccountId = to.Id,
+            //FromAccountId = from.Id,
+            //ToAccountId = to.Id,
             //FromNewBalance = from.Balance,
             //ToNewBalance = to.Balance
         };

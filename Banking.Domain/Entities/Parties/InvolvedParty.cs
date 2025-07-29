@@ -20,4 +20,5 @@ public abstract class InvolvedParty
     public ICollection<Address> Addresses { get; set; } = new List<Address>();
     public ICollection<PhoneNumber> PhoneNumbers { get; set; } = new List<PhoneNumber>();
     public ICollection<EmailAddress> Emails { get; set; } = new List<EmailAddress>();
+    public ICollection<InvolvedPartyNotificationOverride> NotificationOverride { get; set; } = new List<InvolvedPartyNotificationOverride>();
 }

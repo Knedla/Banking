@@ -6,15 +6,15 @@ namespace Banking.Application.Commands.Transfer;
 
 public class TransactionExecutedHandler : IDomainEventHandler<TransactionExecutedEvent>
 {
-    private readonly INotificationEngine _notificationEngine;
+    private readonly INotificationEngine<TransactionExecutedEvent> _engine;
 
-    public TransactionExecutedHandler(INotificationEngine notificationEngine)
+    public TransactionExecutedHandler(INotificationEngine<TransactionExecutedEvent> engine)
     {
-        _notificationEngine = notificationEngine;
+        _engine = engine;
     }
 
-    public async Task HandleAsync(TransactionExecutedEvent @event)
+    public Task HandleAsync(TransactionExecutedEvent domainEvent)
     {
-        await _notificationEngine.HandleEventAsync(@event);
+        return _engine.HandleEventAsync(domainEvent);
     }
 }

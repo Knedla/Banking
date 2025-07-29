@@ -24,6 +24,9 @@ using Banking.Application.Events;
 using Banking.Domain.Events;
 using Banking.Application.Common;
 using Banking.Infrastructure.Events;
+using Banking.Application.Interfaces;
+using Banking.Application.Common.Expressions;
+using Banking.Application.Notifications.Routing;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -55,13 +58,23 @@ builder.Services.AddScoped<IUnitOfWork, InMemoryUnitOfWork>();
 
 
 
-builder.Services.Configure<List<NotificationRule>>(builder.Configuration.GetSection("NotificationRules")); /////////
-builder.Services.AddSingleton<INotificationRuleEngine, NotificationRuleEngine>();
-builder.Services.AddSingleton<INotificationEngine, NotificationEngine>();
 
-builder.Services.AddSingleton<INotificationChannel, EmailChannel>();
-builder.Services.AddSingleton<INotificationChannel, SmsChannel>();
-builder.Services.AddSingleton<INotificationChannel, InAppChannel>();
+
+
+builder.Services.AddScoped<INotificationDestinationResolver, NotificationDestinationResolver>();
+builder.Services.AddScoped<INotificationRuleProvider, NotificationRuleProvider>();
+builder.Services.AddScoped<ITemplateRenderer, SimpleTemplateRenderer>();
+builder.Services.AddScoped<INotificationChannelDispatcher, NotificationChannelDispatcher>();
+
+
+builder.Services.Configure<List<NotificationRule>>(builder.Configuration.GetSection("NotificationRules"));
+builder.Services.AddSingleton<IExpressionEvaluator, ExpressionEvaluator>();
+builder.Services.AddScoped(typeof(INotificationEngine<>), typeof(NotificationEngine<>));
+
+// Channel mocks or real
+builder.Services.AddSingleton<IEmailSender, MockEmailSender>();
+builder.Services.AddSingleton<ISmsSender, MockSmsSender>();
+builder.Services.AddSingleton<IInAppNotifier, MockInAppNotifier>();
 
 // Register the dispatcher
 builder.Services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();

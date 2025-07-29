@@ -1,3 +1,6 @@
 ﻿namespace Banking.Domain.Events;
 
-public interface IDomainEvent { }
+public interface IDomainEvent
+{
+    Guid InvolvedPartyId { get; }
+}
