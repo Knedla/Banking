@@ -51,9 +51,10 @@ public class TransactionApprovalService : ITransactionApprovalService
         }
         await _transactionRepository.UpdateAsync(transaction);
 
-        if (approvalDecision.IsApproved) // update balance
+        if (approvalDecision.IsApproved)
         {
-            
+            // update balance
+            // trigger notification
         }
 
         return approvalDecision;

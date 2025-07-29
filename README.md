@@ -1,5 +1,7 @@
 # Banking
 
+probably not all files are in place
+
 normalize code for asycn awate task			- poorly implemented
 normalize exceptions						- poorly implemented
 add valid DTO layer							- poorly implemented
