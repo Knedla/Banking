@@ -36,11 +36,12 @@ public class Transaction
     public RecipientDetails? RecipientDetails { get; set; } // Receiver account information -> save as json
 
     [Required]
-    public CurrencyAmount CurrencyAmount { get; set; }
+    public CurrencyAmount InitCurrencyAmount { get; set; }
 
     public ExchangeRate? ExchangeRate { get; set; }         // Conversion rate to base currency (e.g., RSD).
 
-    public decimal BaseAmount { get; set; }                 // Calculated base currency amount CurrencyAmount.Amount * ExchangeRate?.Rate ?? 1
+    [Required]
+    public CurrencyAmount CalculatedCurrencyAmount { get; set; } // Calculated base currency amount CurrencyAmount.Amount * ExchangeRate?.Rate ?? 1
 
     [Required] // TODO: domain rules, enforce that: RequiresApproval can only be true when ApprovalStatus != ApprovalStatus.NotRequired
     public bool RequiresApproval { get; set; }              // Calculated
@@ -57,10 +58,10 @@ public class Transaction
     public Guid CreatedByUserId { get; set; }
 
     [Required]
-    public DateTime ModifiedAt { get; set; }
+    public DateTime LastModifiedAt { get; set; }
 
     [Required]
-    public Guid ModifiedByUserId { get; set; }
+    public Guid LastModifiedByUserId { get; set; }
 
     // Common navigation properties
     public ICollection<Transaction> RelatedTransactions { get; set; }

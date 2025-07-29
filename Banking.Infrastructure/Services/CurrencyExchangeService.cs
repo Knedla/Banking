@@ -1,4 +1,5 @@
 ﻿using Banking.Application.Interfaces;
+using Banking.Domain.ValueObjects;
 
 namespace Banking.Infrastructure.Services;
 
@@ -27,6 +28,28 @@ public class CurrencyExchangeService : ICurrencyExchangeService
 
         if (_exchangeRates.TryGetValue((fromCurrency.ToUpper(), toCurrency.ToUpper()), out var rate))
             return Task.FromResult(amount * rate);
+
+        throw new InvalidOperationException($"Exchange rate not found for {fromCurrency} to {toCurrency}.");
+    }
+
+    public Task<CurrencyAmount> ConvertAsync(decimal amount, ExchangeRate exchangeRate)
+    {
+        var result = new CurrencyAmount() { Amount = amount * exchangeRate.Rate, CurrencyCode = exchangeRate.ToCurrencyCode };
+        return Task.FromResult(result);
+    }
+
+    public Task<ExchangeRate> GetExchangeRateAsync(string fromCurrency, string toCurrency)
+    {
+        if (_exchangeRates.TryGetValue((fromCurrency.ToUpper(), toCurrency.ToUpper()), out var rate))
+        {
+            var exchangeRate = new ExchangeRate()
+            {
+                FromCurrencyCode = fromCurrency,
+                ToCurrencyCode = toCurrency,
+                Rate = rate
+            };
+            return Task.FromResult(exchangeRate);
+        }
 
         throw new InvalidOperationException($"Exchange rate not found for {fromCurrency} to {toCurrency}.");
     }

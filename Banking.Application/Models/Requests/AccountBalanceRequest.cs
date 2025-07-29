@@ -3,5 +3,5 @@
 public class AccountBalanceRequest : BaseRequest
 {
     public Guid AccountId { get; set; }
-    public Guid RequestingUserId { get; set; }
+    public Guid RequestingInvolvedPartyId { get; set; }
 }

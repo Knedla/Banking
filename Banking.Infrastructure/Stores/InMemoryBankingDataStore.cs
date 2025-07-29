@@ -145,6 +145,28 @@ public class InMemoryBankingDataStore : IBankingDataStore // TODO: change with n
                     }
                 }
             });
+
+        Guid account1 = new Guid("f6d6cde9-3e0e-4a7a-9081-efb972f9d0b2");
+
+        Accounts.Add(
+            new Account()
+            {
+                Id = account1,
+                InvolvedPartyId = new Guid("9ba7d2a3-6a9e-4e78-93a0-42f3d5ec8ef6"),
+                AccountNumber = "123",
+                AccountType = AccountType.Standard,
+                CreatedAt = DateTime.UtcNow,
+                Balances = new AccountBalance[]
+                {
+                    new AccountBalance()
+                    {
+                        AccountId = account1,
+                        CurrencyCode = "EUR",
+                        Balance = 775533,
+                        AvailableBalance = 775533,
+                    }
+                }
+            });
     }
 
     public List<T> Get<T>() where T : class, IEntity

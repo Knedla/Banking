@@ -21,7 +21,7 @@ public class HighValueTransactionApprovalRule : ITransactionApprovalRule
         if (RequiresApproval(transaction))
         {
             return Task.FromResult(ApprovalDecision.Reject(
-                $"High-value transaction requires approval. Amount: {transaction.CurrencyAmount.Amount} {transaction.CurrencyAmount.Currency}"
+                $"High-value transaction requires approval. Amount: {transaction.InitCurrencyAmount.Amount} {transaction.InitCurrencyAmount.Currency}"
             ));
         }
 
@@ -30,11 +30,11 @@ public class HighValueTransactionApprovalRule : ITransactionApprovalRule
 
     public bool RequiresApproval(Transaction transaction)
     {
-        if (string.IsNullOrWhiteSpace(transaction.CurrencyAmount.Currency)) return false;
+        if (string.IsNullOrWhiteSpace(transaction.InitCurrencyAmount.Currency)) return false;
 
-        if (_settings.Thresholds.TryGetValue(transaction.CurrencyAmount.Currency, out var threshold))
+        if (_settings.Thresholds.TryGetValue(transaction.InitCurrencyAmount.Currency, out var threshold))
         {
-            return transaction.CurrencyAmount.Amount > threshold;
+            return transaction.InitCurrencyAmount.Amount > threshold;
         }
 
         return false;
@@ -44,7 +44,7 @@ public class HighValueTransactionApprovalRule : ITransactionApprovalRule
     {
         if (!RequiresApproval(transaction)) return null;
 
-        _settings.Thresholds.TryGetValue(transaction.CurrencyAmount.Currency, out var threshold);
+        _settings.Thresholds.TryGetValue(transaction.InitCurrencyAmount.Currency, out var threshold);
 
         return new ApprovalRequirement
         {
@@ -52,7 +52,7 @@ public class HighValueTransactionApprovalRule : ITransactionApprovalRule
             RequiredRoles = new List<string> { "SeniorApprover" },
             ApprovalGroups = new List<string> { "ComplianceTeam" },
             MinimumApprovals = 1,
-            Justification = $"Transaction exceeds threshold for {transaction.CurrencyAmount.Currency}: {threshold}"
+            Justification = $"Transaction exceeds threshold for {transaction.InitCurrencyAmount.Currency}: {threshold}"
         };
     }
 }

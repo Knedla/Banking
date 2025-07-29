@@ -10,10 +10,13 @@ public class AccountBalanceRequestValidationTransactionCommandHandler : IValidat
     public Task<bool> CanExecuteAsync(CommandContext<AccountBalanceRequest, AccountBalanceResponse> ctx, CancellationToken ct)
         => Task.FromResult(true);
 
-    public Task ExecuteAsync(CommandContext<AccountBalanceRequest, AccountBalanceResponse> ctx, CancellationToken ct)
+    public Task ExecuteAsync(CommandContext<AccountBalanceRequest, AccountBalanceResponse> ctx, CancellationToken ct) // TODO: could be better implemented, with validation rules or something ...
     {
-        if (ctx.Input.AccountId == null)
+        if (ctx.Input.AccountId == Guid.Empty)
             throw new ValidationException("AccountId is required");
+
+        if (ctx.Input.RequestingInvolvedPartyId == Guid.Empty)
+            throw new ValidationException("RequestingInvolvedPartyId is required");
 
         return Task.CompletedTask;
     }

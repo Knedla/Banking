@@ -16,6 +16,9 @@ public class WithdrawalService : IWithdrawalService
 
     public async Task<WithdrawalResponse> WithdrawAsync(WithdrawalRequest request)
     {
+        if (request == null)
+            throw new Exception($"Request is null.");
+
         var account = await _accountRepository.GetByIdAsync(request.AccountId);
         //account.Balance -= request.Amount;
 

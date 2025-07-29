@@ -1,6 +1,5 @@
 ﻿using Banking.API.Controllers;
 using Banking.API.Extension;
-using Banking.Application.Commands.Common;
 using Banking.Application.Common;
 using Banking.Application.EventHandlers;
 using Banking.Application.Events;
@@ -26,7 +25,7 @@ var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services.AddRepository();
 builder.Services.AddServices();
-builder.Services.AddTransactionCommands(typeof(ICommandHandler<,>).Assembly);
+builder.Services.AddTransactionCommands();
 builder.Services.AddNotification(builder.Configuration);
 
 // Policies
@@ -42,30 +41,24 @@ builder.Services.AddSingleton<IStateTransitionValidator<WorkItemStatus>, WorkIte
 builder.Services.AddSingleton<IBankingDataStore, InMemoryBankingDataStore>();
 builder.Services.AddScoped<IUnitOfWork, InMemoryUnitOfWork>();
 
+// Account
 builder.Services.AddSingleton<IAccountNumberGenerator, AccountNumberGenerator>();
-builder.Services.AddSingleton<ICurrencyExchangeService, CurrencyExchangeService>(); // TODO: add replacement for a certain period of time / replacement for a specified time
+builder.Services.AddSingleton<ICurrencyExchangeService, CurrencyExchangeService>(); // TODO: must have a period/time of validity, the exchange rate changes on a daily basis
+builder.Services.AddSingleton<IAccountBalanceFactory, AccountBalanceFactory>();
 
 // Register the dispatcher
 builder.Services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 // Register event handlers 
 builder.Services.AddScoped<IDomainEventHandler<TransactionExecutedEvent>, TransactionExecutedHandler>();
 builder.Services.AddScoped<IDomainEventHandler<CreateAccountRequestAddedEvent>, CreateAccountRequestAddedHandler>();
-
-//builder.Services.AddScoped(typeof(IDomainEventHandler<>), typeof(WorkItemAddedHandler<>));
+//builder.Services.AddScoped(typeof(IDomainEventHandler<>), typeof(WorkItemAddedHandler<>)); // TODO: check why is not working ...
 
 builder.Services.AddSingleton<IExpressionEvaluator, ExpressionEvaluator>();
 
-
-
-
-
-builder.Services.AddSingleton<IAccountBalanceFactory, AccountBalanceFactory>();
-
+// Rules
+builder.Services.AddSingleton<IRuleProcessor, RuleProcessor>();
 var ruleDefinitions = builder.Configuration.GetSection("RuleDefinitions").Get<RuleDefinitions>();
 builder.Services.AddSingleton(ruleDefinitions);
-
-builder.Services.AddSingleton<IRuleProcessor, RuleProcessor>();
-
 
 // Build
 var app = builder.Build();
@@ -76,9 +69,8 @@ var app = builder.Build();
 
 
 
-// Test
+// Load Test
 var transactionCommandHandlerFactory = app.Services.GetService(typeof(ITransactionCommandHandlerFactory)) as ITransactionCommandHandlerFactory;
-
 
 
 // -- CreateAccount --
@@ -101,13 +93,16 @@ var accountBalanceCommandHandler = transactionCommandHandlerFactory.Create<Accou
 
 var accountBalanceRequest = new AccountBalanceRequest()
 {
-    AccountId = Guid.NewGuid(),
-    RequestingUserId = Guid.NewGuid()
+    AccountId = new Guid("f6d6cde9-3e0e-4a7a-9081-efb972f9d0b2"),
+    RequestingInvolvedPartyId = new Guid("9ba7d2a3-6a9e-4e78-93a0-42f3d5ec8ef6")
 };
 
 AccountBalanceController accountBalanceController = new AccountBalanceController();
 accountBalanceController.GetBalance(accountBalanceCommandHandler, accountBalanceRequest, CancellationToken.None);
 
+
+// -- Deposit --
+//var accountBalanceCommandHandler = transactionCommandHandlerFactory.Create<DepositRequest, DepositResponse>();
 
 
 /*

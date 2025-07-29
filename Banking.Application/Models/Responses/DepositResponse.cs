@@ -1,7 +1,9 @@
-﻿namespace Banking.Application.Models.Responses;
+﻿using Banking.Domain.Entities.Accounts;
+using Banking.Domain.Enumerations;
+
+namespace Banking.Application.Models.Responses;
 
 public class DepositResponse : BaseResponse
 {
-    public Guid AccountId { get; set; }
-    public decimal NewBalance { get; set; }
+    public TransactionStatus TransactionStatus { get; set; }
 }

@@ -30,6 +30,9 @@ public class CreateAccountRequestService : ICreateAccountRequestService
 
     public async Task<CreateAccountRequestResponse> CreateWorkItemAsync(CreateAccountRequestRequest request)
     {
+        if (request == null)
+            throw new Exception($"Request is null.");
+
         var createdAt = DateTime.UtcNow;
         
         var workItem = new Domain.Entities.WorkItems.CreateAccountRequest()

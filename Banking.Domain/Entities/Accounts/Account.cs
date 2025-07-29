@@ -26,18 +26,6 @@ public class Account : BaseEntity
 
     public string? PrimaryCurrencyCode { get; set; }
 
-    [Required]
-    public DateTime CreatedAt { get; set; }
-
-    [Required]
-    public Guid CreatedByUserId { get; set; }
-
-    [Required]
-    public DateTime LastModifiedAt { get; set; }
-
-    [Required]
-    public Guid LastModifiedByUserId { get; set; }
-
     // Common navigation properties
     [Required]
     public ICollection<AccountBalance> Balances { get; set; }

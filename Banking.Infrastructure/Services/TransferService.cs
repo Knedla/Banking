@@ -16,6 +16,9 @@ public class TransferService : ITransferService
 
     public async Task<TransferResponse> TransferAsync(TransferRequest request)
     {
+        if (request == null)
+            throw new Exception($"Request is null.");
+
         var from = await _accountRepository.GetByIdAsync(request.FromAccountId);
         var to = await _accountRepository.GetByIdAsync(request.ToAccountId);
 

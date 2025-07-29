@@ -16,11 +16,28 @@ public class GetBalanceService : IGetBalanceService
 
     public async Task<AccountBalanceResponse> GetBalanceAsync(AccountBalanceRequest request)
     {
+        if (request == null)
+            throw new Exception($"Request is null.");
+
         var account = await _accountRepository.GetByIdAsync(request.AccountId);
+
+        // TODO:
+        // add mandates to accounts
+        // add rules for mandates
+        // check if the user has mandate for the account
+        // check if the user has the rule/right to view the balance
+
+        if (account.InvolvedPartyId != request.RequestingInvolvedPartyId)
+        {
+            var result = new AccountBalanceResponse();
+            result.AddError("you do not have the right to see the account balance");
+            return result;
+        }
+
         return new AccountBalanceResponse
         {
             AccountId = account.Id,
-            //Balance = account.Balance
+            Balance = account.Balances.ToList()
         };
     }
 }

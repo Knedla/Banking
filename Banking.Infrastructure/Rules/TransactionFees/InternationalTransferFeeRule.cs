@@ -20,14 +20,14 @@ public class InternationalTransferFeeRule : ITransactionFeeRule
         bool isInternational = !string.IsNullOrEmpty(transaction.RecipientDetails?.SwiftCode) || !string.IsNullOrEmpty(transaction.RecipientDetails?.Iban); // TODO: resolve isInternational
         return Task.FromResult(
             isInternational &&
-            _settings.InternationalTransferFee.Where(s => s.CurrencyCode == transaction.CurrencyAmount.CurrencyCode).FirstOrDefault() != null); // refactor: double calculation: here and in GetFeeAsync
+            _settings.InternationalTransferFee.Where(s => s.CurrencyCode == transaction.InitCurrencyAmount.CurrencyCode).FirstOrDefault() != null); // refactor: double calculation: here and in GetFeeAsync
     }
 
     public async Task<Fee?> GetFeeAsync(Transaction transaction)
     {
         if (!await AppliesToAsync(transaction)) return null;
 
-        var feeConfig = _settings.InternationalTransferFee.Where(s => s.CurrencyCode == transaction.CurrencyAmount.CurrencyCode).First();
+        var feeConfig = _settings.InternationalTransferFee.Where(s => s.CurrencyCode == transaction.InitCurrencyAmount.CurrencyCode).First();
 
         return new Fee
         {

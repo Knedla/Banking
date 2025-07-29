@@ -21,14 +21,14 @@ public class StandardTransferFeeRule : ITransactionFeeRule
         return Task.FromResult(
             transaction.Type == TransactionType.Transfer && 
             !isInternational &&
-            _settings.StandardTransferFee.Where(s => s.CurrencyCode == transaction.CurrencyAmount.CurrencyCode).FirstOrDefault() != null); // refactor: double calculation: here and in GetFeeAsync
+            _settings.StandardTransferFee.Where(s => s.CurrencyCode == transaction.InitCurrencyAmount.CurrencyCode).FirstOrDefault() != null); // refactor: double calculation: here and in GetFeeAsync
     }
 
     public async Task<Fee?> GetFeeAsync(Transaction transaction)
     {
         if (!await AppliesToAsync(transaction)) return null;
         
-        var feeConfig = _settings.StandardTransferFee.Where(s => s.CurrencyCode == transaction.CurrencyAmount.CurrencyCode).First();
+        var feeConfig = _settings.StandardTransferFee.Where(s => s.CurrencyCode == transaction.InitCurrencyAmount.CurrencyCode).First();
 
         return new Fee
         {

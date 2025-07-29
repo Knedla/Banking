@@ -21,23 +21,23 @@ public class WithdrawalFeeRule : ITransactionFeeRule
         return Task.FromResult(
             transaction.Type == TransactionType.Withdrawal && 
             atmBankId != _settings.BankIdentifier &&
-            _settings.NonSameBankWithdrawal.Where(s => s.CurrencyCode == transaction.CurrencyAmount.CurrencyCode).FirstOrDefault() != null); // refactor: double calculation: here and in GetFeeAsync
+            _settings.NonSameBankWithdrawal.Where(s => s.CurrencyCode == transaction.InitCurrencyAmount.CurrencyCode).FirstOrDefault() != null); // refactor: double calculation: here and in GetFeeAsync
     }
 
     public async Task<Fee?> GetFeeAsync(Transaction transaction)
     {
         if (!await AppliesToAsync(transaction)) return null;
 
-        var feeConfig = _settings.NonSameBankWithdrawal.Where(s => s.CurrencyCode == transaction.CurrencyAmount.CurrencyCode).First();
+        var feeConfig = _settings.NonSameBankWithdrawal.Where(s => s.CurrencyCode == transaction.InitCurrencyAmount.CurrencyCode).First();
 
-        var feeAmount = transaction.CurrencyAmount.Amount * feeConfig.Amount;
+        var feeAmount = transaction.InitCurrencyAmount.Amount * feeConfig.Amount;
 
         return new Fee
         {
             Code = "EXT_ATM_WD_FEE",
             Name = "External ATM Withdrawal Fee",
             Amount = decimal.Round(feeAmount, 2),
-            CurrencyCode = transaction.CurrencyAmount.CurrencyCode,
+            CurrencyCode = transaction.InitCurrencyAmount.CurrencyCode,
             Type = FeeType.Percentage,
             Trigger = FeeTrigger.OnExecution
         };
