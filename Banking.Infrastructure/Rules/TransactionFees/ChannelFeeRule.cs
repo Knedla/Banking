@@ -1,8 +1,8 @@
 ﻿using Banking.Domain.Configuration;
-using Banking.Domain.Entities;
 using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
 using Banking.Domain.Interfaces.Rules;
+using Banking.Domain.ValueObjects;
 
 namespace Banking.Infrastructure.Rules.TransactionFees;
 
@@ -34,6 +34,7 @@ public class ChannelFeeRule : ITransactionFeeRule
             Name = $"{transaction.Channel} Channel Fee",
             Amount = channelFee.Amount,
             CurrencyCode = channelFee.CurrencyCode,
+            AccountNumber = channelFee.AccountNumber ?? _settings.DefaultAccountNumber,
             Type = channelFee.Type,
             Trigger = FeeTrigger.OnExecution
         };

@@ -1,4 +1,4 @@
-﻿using Banking.Application.Interfaces;
+﻿using Banking.Application.Interfaces.Services;
 using Banking.Domain.ValueObjects;
 
 namespace Banking.Infrastructure.Services;

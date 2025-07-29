@@ -52,6 +52,7 @@ public class CreateAccountRequestService : ICreateAccountRequestService
             FromCurrencyCode = request.FromCurrencyCode,
             ToCurrencyCode = request.ToCurrencyCode,
             InitialDeposit = request.InitialDeposit,
+            TransactionChannel = request.TransactionChannel
         };
 
         await _workItemRepository.AddAsync(workItem);
@@ -88,6 +89,7 @@ public class CreateAccountRequestService : ICreateAccountRequestService
                 FromCurrencyCode = workItem.FromCurrencyCode,
                 ToCurrencyCode = workItem.ToCurrencyCode,
                 Amount = workItem.InitialDeposit,
+                TransactionChannel = workItem.TransactionChannel
             });
         }
 

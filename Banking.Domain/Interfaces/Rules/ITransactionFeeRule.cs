@@ -1,5 +1,5 @@
-﻿using Banking.Domain.Entities;
-using Banking.Domain.Entities.Transactions;
+﻿using Banking.Domain.Entities.Transactions;
+using Banking.Domain.ValueObjects;
 
 namespace Banking.Domain.Interfaces.Rules;
 

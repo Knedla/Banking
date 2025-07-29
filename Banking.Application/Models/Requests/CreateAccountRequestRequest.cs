@@ -9,4 +9,5 @@ public class CreateAccountRequestRequest : BaseRequest // TODO: change naming co
     public decimal InitialDeposit { get; set; }
     public string FromCurrencyCode { get; set; }
     public string ToCurrencyCode { get; set; }
+    public TransactionChannel TransactionChannel { get; set; }
 }

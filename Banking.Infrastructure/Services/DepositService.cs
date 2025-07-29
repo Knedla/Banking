@@ -1,5 +1,4 @@
-﻿using Banking.Application.Interfaces;
-using Banking.Application.Interfaces.Services;
+﻿using Banking.Application.Interfaces.Services;
 using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
 using Banking.Domain.Entities.Transactions;
@@ -11,15 +10,25 @@ namespace Banking.Infrastructure.Services;
 
 public class DepositService : IDepositService
 {
+    private readonly ITransactionRepository _transactionRepository;
     private readonly IAccountRepository _accountRepository;
     private readonly ICurrencyExchangeService _currencyExchangeService;
+    private readonly IFraudDetectionService _fraudDetectionService;
+    private readonly ITransactionApprovalService _transactionApprovalService;
+    private readonly ITransactionFeeService _transactionFeeService;
 
     public DepositService(
+        ITransactionRepository transactionRepository,
         IAccountRepository accountRepository,
-        ICurrencyExchangeService currencyExchangeService)
+        ICurrencyExchangeService currencyExchangeService,
+        IFraudDetectionService fraudDetectionService,
+        ITransactionApprovalService transactionApprovalService)
     {
+        _transactionRepository = transactionRepository;
         _accountRepository = accountRepository;
         _currencyExchangeService = currencyExchangeService;
+        _fraudDetectionService = fraudDetectionService;
+        _transactionApprovalService = transactionApprovalService;
     }
 
     public async Task<DepositResponse> DepositAsync(DepositRequest request)
@@ -52,10 +61,9 @@ public class DepositService : IDepositService
 
         var initCurrencyAmount = new CurrencyAmount() { Amount = request.Amount, CurrencyCode = request.FromCurrencyCode };
         var timestamp = DateTime.UtcNow;
-        var transactionId = Guid.NewGuid(); // TODO: implement IdGenereator
         var transaction = new Transaction()
         {
-            Id = transactionId,
+            Id = Guid.NewGuid(), // TODO: implement IdGenereator
             // RelatedToTransactionId
             // ReversalTransactionId
             Timestamp = timestamp,
@@ -83,12 +91,25 @@ public class DepositService : IDepositService
             // Approvals
             // Batches
         };
-
-        // trigger transaction added
-        // see if can be approved
-        // add fees
         
-        // if approved, update balance
+        await _transactionRepository.AddAsync(transaction); // trigger event transaction added if needed
+
+        var isSuspiciousTransaction = await _fraudDetectionService.IsSuspiciousTransactionAsync(transaction, CancellationToken.None); // AML calculation
+        if (isSuspiciousTransaction)
+        {
+            transaction.Status = TransactionStatus.Suspended;
+            await _transactionRepository.UpdateAsync(transaction);
+
+            var result = new DepositResponse();
+            result.AddError("ALM watching you!");
+            return result;
+        }
+
+        await _transactionFeeService.AddFeesAsync(transaction, request.UserId, CancellationToken.None);
+
+        // trigger policies min balance izracunaj dal ima sa svim fijevima 
+
+        await _transactionApprovalService.ApproveAsync(transaction, request.UserId, CancellationToken.None);
 
         return new DepositResponse
         {

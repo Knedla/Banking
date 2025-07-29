@@ -1,10 +1,11 @@
-﻿using Banking.Domain.Entities;
-using Banking.Domain.Entities.Transactions;
+﻿using Banking.Domain.Entities.Transactions;
+using Banking.Domain.Interfaces.Plicies;
 using Banking.Domain.Interfaces.Rules;
+using Banking.Domain.ValueObjects;
 
 namespace Banking.Domain.Policies;
 
-public class TransactionFeePolicy
+public class TransactionFeePolicy : ITransactionFeePolicy
 {
     private readonly IEnumerable<ITransactionFeeRule> _feeRules;
 
@@ -13,7 +14,7 @@ public class TransactionFeePolicy
         _feeRules = feeRules;
     }
 
-    public async Task<List<Fee>> EvaluateAsync(Transaction transaction)
+    public async Task<List<Fee>> EvaluateAsync(Transaction transaction, CancellationToken cancellationToken = default)
     {
         var fees = new List<Fee>();
 

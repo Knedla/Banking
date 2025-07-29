@@ -5,11 +5,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Banking.Domain.Entities.Transactions;
 
-public class Transaction
+public class Transaction : BaseEntity
 {
-    [Key]
-    public Guid Id { get; set; }
-
     // General linking (e.g. fee → transaction, interest → balance) // TODO: domain rules, enforce that: ReversalTransactionId can only be set when TransactionType != Reversal
     public Guid? RelatedToTransactionId { get; set; }
     
@@ -50,24 +47,12 @@ public class Transaction
 
     [Required] // TODO: domain rules, enforce that: IsDeleted can only be true when TransactionStatus == TransactionStatus.Cancelled; depending on business, maybe some other statuses can be added as well
     public bool IsDeleted { get; set; }                     // Calculated
-    
-    [Required]
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    [Required]
-    public Guid CreatedByUserId { get; set; }
-
-    [Required]
-    public DateTime LastModifiedAt { get; set; }
-
-    [Required]
-    public Guid LastModifiedByUserId { get; set; }
 
     // Common navigation properties
     public ICollection<Transaction> RelatedTransactions { get; set; }
     public ICollection<TransactionApprovalRequirement> ApprovalRequirements { get; set; }
     public ICollection<TransactionApproval> Approvals { get; set; }
-    public ICollection<TransactionBatch> Batches { get; set; }
+    public ICollection<TransactionBatch> Batches { get; set; } // not used
 
     // resolved references
     public Transaction? RelatedToTransaction { get; set; }

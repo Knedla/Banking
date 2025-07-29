@@ -16,5 +16,6 @@ public enum TransactionChannel
     Swift,          // Incoming or outgoing international transaction via the SWIFT network. Typically includes additional data like BIC, MT messages, and reference codes.
     Sepa,           // Eurozone electronic transfer processed through the SEPA network. Fast and low-cost transfers in EUR within the EU/EEA.
     AdminPanel,
-    OtherBank       // Transaction initiated by another bank or payment processor, such as an incoming payment to a user's account.
+    OtherBank,      // Transaction initiated by another bank or payment processor, such as an incoming payment to a user's account.
+    System
 }

@@ -1,10 +1,11 @@
 ﻿using Banking.Domain.Entities.Transactions;
+using Banking.Domain.Interfaces.Plicies;
 using Banking.Domain.Interfaces.Rules;
 using Banking.Domain.Models;
 
 namespace Banking.Domain.Policies;
 
-public class TransactionApprovalPolicy
+public class TransactionApprovalPolicy : ITransactionApprovalPolicy
 {
     private readonly IEnumerable<ITransactionApprovalRule> _rules;
 
@@ -25,12 +26,7 @@ public class TransactionApprovalPolicy
         return ApprovalDecision.Approve();
     }
 
-    public bool RequiresApproval(Transaction transaction)
-    {
-        return _rules.Any(rule => rule.RequiresApproval(transaction));
-    }
-
-    public List<ApprovalRequirement> GetRequirements(Transaction transaction)
+    public async Task<List<ApprovalRequirement>> GetRequirements(Transaction transaction, CancellationToken cancellationToken = default)
     {
         return _rules
             .Where(rule => rule.RequiresApproval(transaction))

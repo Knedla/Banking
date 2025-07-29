@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Banking.Application.Notifications;
 
-public class SimpleTemplateRenderer : ITemplateRenderer
+public class SimpleTemplateRenderer : ITemplateRenderer // mock
 {
     public string Render(string template, object model)
     {

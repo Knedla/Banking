@@ -17,7 +17,6 @@ public class TransactionApproval
     [Required]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    [Required]
     public Guid ApproverId { get; set; }
 
     [Required]

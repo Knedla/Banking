@@ -1,8 +1,8 @@
 ﻿using Banking.Domain.Configuration;
-using Banking.Domain.Entities;
 using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
 using Banking.Domain.Interfaces.Rules;
+using Banking.Domain.ValueObjects;
 
 namespace Banking.Infrastructure.Rules.TransactionFees;
 
@@ -38,6 +38,7 @@ public class WithdrawalFeeRule : ITransactionFeeRule
             Name = "External ATM Withdrawal Fee",
             Amount = decimal.Round(feeAmount, 2),
             CurrencyCode = transaction.InitCurrencyAmount.CurrencyCode,
+            AccountNumber = feeConfig.AccountNumber ?? _settings.DefaultAccountNumber,
             Type = FeeType.Percentage,
             Trigger = FeeTrigger.OnExecution
         };

@@ -1,6 +1,6 @@
 ﻿using Banking.Domain.ValueObjects;
 
-namespace Banking.Application.Interfaces;
+namespace Banking.Application.Interfaces.Services;
 
 public interface ICurrencyExchangeService
 {

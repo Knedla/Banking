@@ -1,6 +1,5 @@
 ﻿using Banking.Application.Interfaces.Services;
-using Banking.Application.Services.Approval;
-using Banking.Domain.Interfaces.Services;
+using Banking.Application.Services;
 using Banking.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,9 +17,10 @@ public static class ServiceRegistration
         services.AddScoped<IWithdrawalService, WithdrawalService>();
         services.AddScoped<ITransferService, TransferService>();
         services.AddScoped<IInvolvedPartyService, InvolvedPartyService>();
-
-        // Banking.Application
-        services.AddScoped<IApprovalService, ApprovalService>();
+        services.AddScoped<IFraudDetectionService, FraudDetectionService>();
+        services.AddScoped<IUserContextService, UserContextService> ();
+        services.AddScoped<ITransactionApprovalService, TransactionApprovalService>();
+        services.AddScoped<ITransactionFeeService, TransactionFeeService>();
 
         return services;
     }

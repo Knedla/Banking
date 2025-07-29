@@ -1,9 +1,9 @@
 ﻿using Banking.Domain.Configuration;
-using Banking.Domain.Entities;
 using Banking.Domain.Entities.Accounts;
 using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
 using Banking.Domain.Interfaces.Rules;
+using Banking.Domain.ValueObjects;
 
 namespace Banking.Infrastructure.Rules.TransactionFees;
 
@@ -44,6 +44,7 @@ public class MinimumBalanceFeeRule : ITransactionFeeRule
             Name = "Minimum Balance Fee",
             Amount = feeConfig.Amount,
             CurrencyCode = feeConfig.CurrencyCode,
+            AccountNumber = feeConfig.AccountNumber ?? _settings.DefaultAccountNumber,
             Type = feeConfig.Type,
             Trigger = FeeTrigger.OnExecution
         };

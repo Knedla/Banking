@@ -26,6 +26,8 @@ public class Account : BaseEntity
 
     public string? PrimaryCurrencyCode { get; set; }
 
+    // TODO: add OVERDRAFT !!!!!!!
+
     // Common navigation properties
     [Required]
     public ICollection<AccountBalance> Balances { get; set; }
