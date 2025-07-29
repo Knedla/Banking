@@ -15,17 +15,20 @@ public class CreateAccountRequestService : ICreateAccountRequestService
     private readonly IWorkItemRepository _workItemRepository;
     private readonly IStateTransitionValidator<WorkItemStatus> _workItemStatusTransitionValidator;
     private readonly IDomainEventDispatcher _domainEventDispatcher;
+    private readonly IDepositService _depositService;
 
     public CreateAccountRequestService(
         ICreateAccountService createAccountService,
         IWorkItemRepository workItemRepository,
         IStateTransitionValidator<WorkItemStatus> workItemStatusTransitionValidator,
-        IDomainEventDispatcher domainEventDispatcher)
+        IDomainEventDispatcher domainEventDispatcher,
+        IDepositService depositService)
     {
         _createAccountService = createAccountService;
         _workItemRepository = workItemRepository;
         _workItemStatusTransitionValidator = workItemStatusTransitionValidator;
         _domainEventDispatcher = domainEventDispatcher;
+        _depositService = depositService;
     }
 
     public async Task<CreateAccountRequestResponse> CreateWorkItemAsync(CreateAccountRequestRequest request)
@@ -46,7 +49,8 @@ public class CreateAccountRequestService : ICreateAccountRequestService
 
             InvolvedPartyId = request.InvolvedPartyId,
             AccountType = request.AccountType,
-            CurrencyCode = request.CurrencyCode,
+            FromCurrencyCode = request.FromCurrencyCode,
+            ToCurrencyCode = request.ToCurrencyCode,
             InitialDeposit = request.InitialDeposit,
         };
 
@@ -76,10 +80,18 @@ public class CreateAccountRequestService : ICreateAccountRequestService
 
         if (request.InitialDeposit > 0)
         {
-            // TODO: trigger transaction
+            await _depositService.DepositAsync(new DepositRequest()
+            {
+                UserId = request.UserId,
+                InvolvedPartyId = workItem.InvolvedPartyId,
+                AccountId = createAccountResponse.AccountId,
+                FromCurrencyCode = workItem.FromCurrencyCode,
+                ToCurrencyCode = workItem.ToCurrencyCode,
+                Amount = workItem.InitialDeposit,
+            });
         }
 
-        return new CreateAccountRequestResponse
+        return new CreateAccountRequestResponse // maybe add DepositRequest result ...
         {
             WorkItemId = workItem.Id,
             WorkItemStatus = workItem.Status
