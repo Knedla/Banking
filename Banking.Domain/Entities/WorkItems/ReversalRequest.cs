@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Banking.Domain.Entities.WorkItems;
 
-public class ReversalRequest : WorkItem
+public class ReversalRequest : WorkItem // not used
 {
     [Required]
     public Guid TransactionId { get; set; }

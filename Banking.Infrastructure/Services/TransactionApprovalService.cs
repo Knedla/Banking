@@ -69,6 +69,7 @@ public class TransactionApprovalService : ITransactionApprovalService
         {
             // update balance
             // try resolve accountId by accountNumber
+            // if mony out - update AvailableBalance, update on transaction added / any status change 
 
             await _domainEventDispatcher.RaiseAsync(new TransactionExecutedEvent(
                 transaction.Id,

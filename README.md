@@ -12,3 +12,12 @@ add logic for CancellationToken				- not implemented
 add object mappers							- not implemented
 
 ADD OVERDRAFT
+
+-- Add Entities --
+ReversalRequest
+HoldPeriod
+AccountPolicy
+AccountMandate
+MandateRule
+AuditLog
+KycVerification
