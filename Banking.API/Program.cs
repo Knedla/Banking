@@ -67,7 +67,7 @@ var accountBalanceCommandHandler = transactionCommandHandlerFactory.Create<Accou
 var accountBalanceRequest = new AccountBalanceRequest()
 {
     AccountId = new Guid("f6d6cde9-3e0e-4a7a-9081-efb972f9d0b2"),
-    RequestingInvolvedPartyId = new Guid("9ba7d2a3-6a9e-4e78-93a0-42f3d5ec8ef6")
+    InvolvedPartyId = new Guid("9ba7d2a3-6a9e-4e78-93a0-42f3d5ec8ef6")
 };
 
 AccountBalanceController accountBalanceController = new AccountBalanceController();

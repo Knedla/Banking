@@ -15,8 +15,8 @@ public class AccountBalanceRequestValidationTransactionCommandHandler : IValidat
         if (ctx.Input.AccountId == Guid.Empty)
             throw new ValidationException("AccountId is required");
 
-        if (ctx.Input.RequestingInvolvedPartyId == Guid.Empty)
-            throw new ValidationException("RequestingInvolvedPartyId is required");
+        if (ctx.Input.InvolvedPartyId == Guid.Empty)
+            throw new ValidationException("InvolvedPartyId is required");
 
         return Task.CompletedTask;
     }

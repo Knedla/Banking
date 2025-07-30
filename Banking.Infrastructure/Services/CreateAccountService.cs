@@ -57,7 +57,9 @@ public class CreateAccountService : ICreateAccountService
                 AccountId = accountId, 
                 AccountType = createAccountRequest.AccountType, 
             });
-        
+
+        // TODO: check if an overdraft is possible and attach it to the account
+
         var account = new Account
         {
             Id = accountId,

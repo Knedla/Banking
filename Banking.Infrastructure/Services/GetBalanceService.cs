@@ -27,7 +27,7 @@ public class GetBalanceService : IGetBalanceService
         // check if the user has mandate for the account
         // check if the user has the rule/right to view the balance
 
-        if (account.InvolvedPartyId != request.RequestingInvolvedPartyId)
+        if (account.InvolvedPartyId != request.InvolvedPartyId)
         {
             var result = new AccountBalanceResponse();
             result.AddError("you do not have the right to see the account balance");

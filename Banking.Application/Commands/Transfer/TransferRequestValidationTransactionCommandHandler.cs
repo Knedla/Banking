@@ -15,7 +15,7 @@ public class TransferRequestValidationTransactionCommandHandler : IValidationTra
         if (ctx.Input.Amount <= 0)
             throw new ValidationException("Transfer amount must be positive");
 
-        if (ctx.Input.FromAccountId == ctx.Input.ToAccountId)
+        if (ctx.Input.AccountNumber == ctx.Input.CounterpartyAccountDetails.AccountNumber) // mock
             throw new ValidationException("Cannot transfer to the same account");
 
         return Task.CompletedTask;

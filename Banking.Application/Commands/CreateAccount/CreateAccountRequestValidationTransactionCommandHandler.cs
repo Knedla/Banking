@@ -15,7 +15,7 @@ public class CreateAccountRequestValidationTransactionCommandHandler : IValidati
         if (ctx.Input.InvolvedPartyId == Guid.Empty)
             ctx.Output.AddError("InvolvedPartyId is required");
 
-        if (ctx.Input.AccountType is (AccountType.Loan or AccountType.Credit))
+        if (ctx.Input.AccountType is (AccountType.Loan or AccountType.Credit)) // mock
             ctx.Output.AddError("Invalid account type");
 
         return Task.CompletedTask;

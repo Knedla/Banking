@@ -20,8 +20,6 @@ public class InMemoryBankingDataStore : IBankingDataStore // TODO: change with n
     public List<Individual> Individuals => _individuals;
     public List<Account> Accounts => _accounts;
 
-    private List<Account> _accountsBackup;  ///////////////////////////////////////////////////////////////
-
     public InMemoryBankingDataStore()
     {
         InitLists();
@@ -165,6 +163,11 @@ public class InMemoryBankingDataStore : IBankingDataStore // TODO: change with n
                         Balance = 775533,
                         AvailableBalance = 775533,
                     }
+                },
+                Overdraft = new Overdraft()
+                {
+                    Limit = 1000,
+                    CurrencyCode = "EUR"
                 }
             });
     }
@@ -177,32 +180,10 @@ public class InMemoryBankingDataStore : IBankingDataStore // TODO: change with n
         throw new InvalidOperationException($"Unsupported type: {typeof(T).Name}");
     }
 
-    public Task BeginTransactionAsync()
-    {
-        _accountsBackup = _accounts.Select(a => new Account
-        {
-            Id = a.Id,
-            AccountNumber = a.AccountNumber,
-            //Balance = a.Balance
-        }).ToList();
-
-        return Task.CompletedTask;
-    }
-
-    public Task CommitAsync()
-    {
-        _accountsBackup = null;
-        return Task.CompletedTask;
-    }
-
-    public Task RollbackAsync()
-    {
-        _accounts = _accountsBackup;
-
-        return Task.CompletedTask;
-    }
-
     // TODO: implement
+    public Task BeginTransactionAsync() => throw new NotImplementedException();
+    public Task CommitAsync() => throw new NotImplementedException();
+    public Task RollbackAsync() => throw new NotImplementedException();
     public Task SaveAsync() => throw new NotImplementedException();
     public Task CreateSavepointAsync() => throw new NotImplementedException();
     public Task RollbackToSavepointAsync() => throw new NotImplementedException();
