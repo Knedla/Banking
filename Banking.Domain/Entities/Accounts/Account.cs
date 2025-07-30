@@ -24,13 +24,16 @@ public class Account : BaseEntity
 
     public AccountTier? AccountTier { get; set; }
 
-    public string? PrimaryCurrencyCode { get; set; }
+    [Required]
+    public string PrimaryCurrencyCode { get; set; }
 
     public Overdraft? Overdraft { get; set; }
 
     // Common navigation properties
-    [Required]
-    public ICollection<AccountBalance> Balances { get; set; }
+    [Required] 
+    public ICollection<AccountBalance> Balances { get; set; } // constraints: there must be an AccountBalance whose CurrencyCode == PrimaryCurrencyCode
+    public ICollection<TransactionHolding> Holdings { get; set; }
+
     //public ICollection<AccountMandate> Mandates { get; set; }
     //public ICollection<AccountPolicy> Policies { get; set; }
 

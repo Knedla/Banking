@@ -66,6 +66,7 @@ public class CreateAccountService : ICreateAccountService
             InvolvedPartyId = createAccountRequest.InvolvedPartyId,
             AccountNumber = accountNumber,
             AccountType = createAccountRequest.AccountType,
+            PrimaryCurrencyCode = "EUR", // but in reality read it from the config about specific account type/product
             CreatedAt = createdAt,
             CreatedByUserId = request.UserId,
             LastModifiedAt = createdAt,

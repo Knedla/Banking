@@ -16,17 +16,29 @@ public class TransactionApprovalService : ITransactionApprovalService
     private readonly ITransactionApprovalPolicy _transactionApprovalPolicy;
     private readonly IDomainEventDispatcher _domainEventDispatcher;
     private readonly IStateTransitionValidator<TransactionStatus> _stateTransitionValidator;
+    private readonly IUpdateBalanceService _updateBalanceService;
 
     public TransactionApprovalService(
         ITransactionRepository transactionRepository,
         ITransactionApprovalPolicy transactionApprovalPolicy,
         IDomainEventDispatcher domainEventDispatcher,
-        IStateTransitionValidator<TransactionStatus> stateTransitionValidator)
+        IStateTransitionValidator<TransactionStatus> stateTransitionValidator,
+        IUpdateBalanceService updateBalanceService)
     {
         _transactionRepository = transactionRepository;
         _transactionApprovalPolicy = transactionApprovalPolicy;
         _domainEventDispatcher = domainEventDispatcher;
         _stateTransitionValidator = stateTransitionValidator;
+        _updateBalanceService = updateBalanceService;
+    }
+
+    public Task<ApprovalDecision> ApproveWithRelatedTransactionsAsync(Transaction transaction, Guid currentUserId, CancellationToken cancellationToken = default)
+    {
+        // PROMENA STATUSA TREBA DA SE DESAVA NA SVIM TRANSAKCIJAMA I ONIM SUB I ORIGINALNOJ
+        // trigger for every subtransactions... !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // ne mora svaka subtransakcija da se apruvuje, ali one sto nisu u krajnjim statusima bi trebalo da se pomere sa trenutnog na approve
+
+        throw new NotImplementedException();
     }
 
     public async Task<ApprovalDecision> ApproveAsync(Transaction transaction, Guid currentUserId, CancellationToken cancellationToken = default)
@@ -67,9 +79,7 @@ public class TransactionApprovalService : ITransactionApprovalService
 
         if (approvalDecision.IsApproved)
         {
-            // update balance
-            // try resolve accountId by accountNumber
-            // if mony out - update AvailableBalance, update on transaction added / any status change 
+            await _updateBalanceService.UpdateBalanceAndRelatedTransactionsAsync(transaction);
 
             await _domainEventDispatcher.RaiseAsync(new TransactionExecutedEvent(
                 transaction.Id,
@@ -80,7 +90,7 @@ public class TransactionApprovalService : ITransactionApprovalService
                 transaction.CalculatedCurrencyAmount.Currency,
                 true,
                 DateTime.UtcNow
-            )); // trigger for notifications
+            )); // trigger only for main transaction; should it be triggered for related transactions as well ? ... notifications engine will collect trigger
         }
 
         return approvalDecision;

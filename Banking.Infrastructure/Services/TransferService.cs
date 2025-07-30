@@ -129,7 +129,7 @@ public class TransferService : ITransferService
             return result;
         }
 
-        await _transactionApprovalService.ApproveAsync(transaction, request.UserId, CancellationToken.None);
+        await _transactionApprovalService.ApproveWithRelatedTransactionsAsync(transaction, request.UserId, CancellationToken.None);
 
         return new TransferResponse { TransactionStatus = transaction.Status, };
     }

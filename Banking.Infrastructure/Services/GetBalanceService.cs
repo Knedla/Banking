@@ -21,6 +21,9 @@ public class GetBalanceService : IGetBalanceService
 
         var account = await _accountRepository.GetByIdAsync(request.AccountId);
 
+        if (account == null)
+            throw new Exception($"Cannot find account.");
+
         // TODO:
         // add mandates to accounts
         // add rules for mandates

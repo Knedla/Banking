@@ -23,7 +23,7 @@ public static class ServiceRegistration
         services.AddScoped<ITransactionApprovalService, TransactionApprovalService>();
         services.AddScoped<ITransactionFeeService, TransactionFeeService>();
         services.AddScoped(typeof(IPolicyService<>), typeof(PolicyService<>));
-
+        services.AddScoped<IUpdateBalanceService, UpdateBalanceService>();
 
         return services;
     }

@@ -33,8 +33,6 @@ public class TransactionFeeService : ITransactionFeeService
         if (fees == null && fees.Count == 0)
             return;
 
-        var account = await _accountRepository.GetByIdAsync(transaction.AccountId);
-
         if (transaction.RelatedTransactions == null)
             transaction.RelatedTransactions = new List<Transaction>();
 
@@ -52,7 +50,7 @@ public class TransactionFeeService : ITransactionFeeService
                 // ReversalTransactionId
                 Timestamp = timestamp,
                 Type = TransactionType.Fee,
-                Status = TransactionStatus.Pending,
+                Status = TransactionStatus.Posted, // probably some minipipeline should be created for fees because they are not an independent transaction but part of the main one. this value is set for convenience
                 Channel = TransactionChannel.System,
                 AccountId = transaction.AccountId,
                 Description = fee.Code,

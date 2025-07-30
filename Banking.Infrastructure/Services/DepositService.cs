@@ -129,7 +129,7 @@ public class DepositService : IDepositService
             return result;
         }
         
-        await _transactionApprovalService.ApproveAsync(transaction, request.UserId, CancellationToken.None);
+        await _transactionApprovalService.ApproveWithRelatedTransactionsAsync(transaction, request.UserId, CancellationToken.None);
 
         return new DepositResponse { TransactionStatus = transaction.Status, };
     }

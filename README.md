@@ -1,5 +1,7 @@
 # Banking
 
+where there is a 'mock' comment, the implementation is basic, just enough to cover the basic scenario
+
 probably not all files are in place
 
 not much attention was paid to the model regarding referencing properties, navigations, lists

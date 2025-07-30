@@ -153,6 +153,7 @@ public class InMemoryBankingDataStore : IBankingDataStore // TODO: change with n
                 InvolvedPartyId = new Guid("9ba7d2a3-6a9e-4e78-93a0-42f3d5ec8ef6"),
                 AccountNumber = "123",
                 AccountType = AccountType.Standard,
+                PrimaryCurrencyCode = "EUR",
                 CreatedAt = DateTime.UtcNow,
                 Balances = new AccountBalance[]
                 {
