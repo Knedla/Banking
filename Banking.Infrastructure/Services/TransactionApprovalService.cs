@@ -38,6 +38,11 @@ public class TransactionApprovalService : ITransactionApprovalService
         // trigger for every subtransactions... !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // ne mora svaka subtransakcija da se apruvuje, ali one sto nisu u krajnjim statusima bi trebalo da se pomere sa trenutnog na approve
 
+        // if mony out - update AvailableBalance, update on transaction added / any status change 
+        // za odlazece transakcije fijeva, treba da napravim ulazne transakcije u banku
+
+        // TRANSFER PREBACI SA JEDNOG RACUNA NA DRUGI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
         throw new NotImplementedException();
     }
 

@@ -4,7 +4,7 @@ namespace Banking.Application.Models.Requests;
 
 public class WithdrawalRequest : BaseRequest
 {
-    public Guid AccountId { get; set; }
+    public Guid AccountId { get; set; } // if not passed, it needs to be able to be resolved from AccountNumber or some other alternative key
     public Guid InvolvedPartyId { get; set; }
     public TransactionChannel TransactionChannel { get; set; }
 

@@ -47,18 +47,15 @@ public class UpdateBalanceService : IUpdateBalanceService // should be triggered
         _accountRepository = accountRepository;
     }
 
-    public Task UpdateBalanceAndRelatedTransactionsAsync(Transaction transaction)
+    public async Task UpdateBalanceAndRelatedTransactionsAsync(Transaction transaction) // can be executed parallel
     {
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ///// da li da passujem transakciju po transakciju, kako kad je apply - commit, to ide na sve transakcije relajted - ili da gledam to kao jedna po jedna
-        ///dal da mi account.Holdings drzi samo glavne transakcije ili sve - moralno bi sve posto nekad moze da se updateuje lista subtransakcija
-        // za odlazece transakcije fijeva, treba da napravim ulazne transakcije u banku
-        // try resolve accountId by accountNumber
-        // if mony out - update AvailableBalance, update on transaction added / any status change 
+        await UpdateBalanceAsync(transaction);
 
-        throw new NotImplementedException();
+        if (transaction.RelatedTransactions == null)
+            return;
+
+        foreach (var relatedTransactions in transaction.RelatedTransactions)
+            await UpdateBalanceAsync(relatedTransactions); // can be executed paralel
     }
 
     public async Task UpdateBalanceAsync(Transaction transaction)

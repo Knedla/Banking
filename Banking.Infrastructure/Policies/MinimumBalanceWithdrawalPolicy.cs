@@ -36,7 +36,7 @@ namespace Banking.Domain.Policies
                 if (balance == null)
                     return Task.FromResult(TransactionPolicyResult.Failure($"Balance {kv.Key} not found."));
 
-                // OVERDRAFT AAAAAAAAAAAAAAAA !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                // CALCULATE OVERDRAFT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 var availableBalance = 0; // await CalculateAvailableBalance(balance, account, account.Overdraft, null).Result;
 
                 if (kv.Value > availableBalance)
