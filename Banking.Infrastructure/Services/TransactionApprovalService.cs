@@ -4,6 +4,7 @@ using Banking.Application.Interfaces.Services;
 using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
 using Banking.Domain.Interfaces.Polices;
+using Banking.Domain.Interfaces.StateMachine;
 using Banking.Domain.Models;
 using Banking.Domain.Repositories;
 
@@ -14,13 +15,18 @@ public class TransactionApprovalService : ITransactionApprovalService
     private readonly ITransactionRepository _transactionRepository;
     private readonly ITransactionApprovalPolicy _transactionApprovalPolicy;
     private readonly IDomainEventDispatcher _domainEventDispatcher;
+    private readonly IStateTransitionValidator<TransactionStatus> _stateTransitionValidator;
 
     public TransactionApprovalService(
         ITransactionRepository transactionRepository,
-        ITransactionApprovalPolicy transactionApprovalPolicy)
+        ITransactionApprovalPolicy transactionApprovalPolicy,
+        IDomainEventDispatcher domainEventDispatcher,
+        IStateTransitionValidator<TransactionStatus> stateTransitionValidator)
     {
         _transactionRepository = transactionRepository;
         _transactionApprovalPolicy = transactionApprovalPolicy;
+        _domainEventDispatcher = domainEventDispatcher;
+        _stateTransitionValidator = stateTransitionValidator;
     }
 
     public async Task<ApprovalDecision> ApproveAsync(Transaction transaction, Guid currentUserId, CancellationToken cancellationToken = default)
@@ -28,7 +34,12 @@ public class TransactionApprovalService : ITransactionApprovalService
         var approvalDecision = await _transactionApprovalPolicy.EvaluateAsync(transaction, currentUserId, cancellationToken);
 
         if (approvalDecision.IsApproved)
+        {
+            if (!_stateTransitionValidator.IsValidTransition(transaction.Status, TransactionStatus.Approved))
+                return ApprovalDecision.Reject($"Transaction cannot change from {transaction.Status} to Approved.");
+            
             transaction.Status = TransactionStatus.Approved;
+        }
         else
         {
             var timestamp = DateTime.UtcNow;
@@ -57,6 +68,7 @@ public class TransactionApprovalService : ITransactionApprovalService
         if (approvalDecision.IsApproved)
         {
             // update balance
+            // try resolve accountId by accountNumber
 
             await _domainEventDispatcher.RaiseAsync(new TransactionExecutedEvent(
                 transaction.Id,

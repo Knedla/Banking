@@ -77,7 +77,7 @@ public class DepositService : IDepositService
             Channel = request.TransactionChannel,
             AccountId = account.Id,
             // Description
-            // RecipientDetails
+            // CounterpartyAccountDetails
 
             InitCurrencyAmount = initCurrencyAmount,
             ExchangeRate = exchangeRate,

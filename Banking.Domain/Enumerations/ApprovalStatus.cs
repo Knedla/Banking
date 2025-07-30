@@ -2,6 +2,7 @@
 
 public enum ApprovalStatus
 {
+    // maybe PoliciesTriggerRequired
     NotRequired = 0,
     Pending = 1,
     Approved = 2,

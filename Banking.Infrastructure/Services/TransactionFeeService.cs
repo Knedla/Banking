@@ -56,7 +56,12 @@ public class TransactionFeeService : ITransactionFeeService
                 Channel = TransactionChannel.System,
                 AccountId = transaction.AccountId,
                 Description = fee.Code,
-                CounterpartyAccountDetails = new CounterpartyAccountDetails() { AccountNumber = fee.AccountNumber, PaymentReference = JsonConvert.SerializeObject(fee) },
+                CounterpartyAccountDetails = new CounterpartyAccountDetails()
+                {
+                    Role = CounterpartyTransactionRole.Receiver,
+                    AccountNumber = fee.AccountNumber, 
+                    PaymentReference = JsonConvert.SerializeObject(fee)
+                },
 
                 InitCurrencyAmount = currencyAmount,
                 // ExchangeRate

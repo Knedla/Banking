@@ -1,7 +1,10 @@
-﻿namespace Banking.Domain.Entities.Transactions;
+﻿using Banking.Domain.Enumerations;
+
+namespace Banking.Domain.Entities.Transactions;
 
 public class CounterpartyAccountDetails
 {
+    public CounterpartyTransactionRole Role { get; set; }
     public string? Name { get; set; }
     public string? AccountNumber { get; set; }          // local format
     public string? Iban { get; set; }                   // international

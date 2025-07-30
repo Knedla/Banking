@@ -1,8 +1,8 @@
-﻿namespace Banking.Application.Models.Responses;
+﻿using Banking.Domain.Enumerations;
+
+namespace Banking.Application.Models.Responses;
 
 public class WithdrawalResponse : BaseResponse
 {
-    public Guid AccountId { get; set; }
-    public decimal NewBalance { get; set; }
-    public string ConfirmationNumber { get; set; }
+    public TransactionStatus TransactionStatus { get; set; }
 }
