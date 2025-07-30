@@ -26,13 +26,15 @@ public class TransactionApprovalPolicy : ITransactionApprovalPolicy
         return ApprovalDecision.Approve();
     }
 
-    public async Task<List<ApprovalRequirement>> GetRequirements(Transaction transaction, CancellationToken cancellationToken = default)
+    public Task<List<ApprovalRequirement>> GetRequirements(Transaction transaction, CancellationToken cancellationToken = default)
     {
-        return _rules
+        var result = _rules
             .Where(rule => rule.RequiresApproval(transaction))
             .Select(rule => rule.DescribeRequirement(transaction))
             .Where(r => r != null)
             .Cast<ApprovalRequirement>()
             .ToList();
+
+        return Task.FromResult(result);
     }
 }

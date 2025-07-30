@@ -7,8 +7,9 @@ public class AccountRepository : GenericRepository<Account>, IAccountRepository
 {
     public AccountRepository(IBankingDataStore dataStore) : base(dataStore) { }
 
-    public async Task<Account?> GetByAccountNumberAsync(string accountNumber)
+    public Task<Account?> GetByAccountNumberAsync(string accountNumber)
     {
-        return _dbSet.Find(s => s.AccountNumber == accountNumber);
+        var account = _dbSet.Find(s => s.AccountNumber == accountNumber);
+        return Task.FromResult(account);
     }
 }

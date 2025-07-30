@@ -6,7 +6,6 @@ using Banking.Domain.Enumerations;
 using Banking.Domain.Interfaces.Polices;
 using Banking.Domain.Interfaces.StateMachine;
 using Banking.Domain.Models;
-using System.Net.NetworkInformation;
 
 namespace Banking.Application.Services;
 

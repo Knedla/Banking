@@ -14,11 +14,13 @@ public class UserRoleWithdrawalPolicy : IWithdrawalPolicy
         _userContext = userContext;
     }
 
-    public async Task<TransactionPolicyResult> EvaluateAsync(Transaction transaction, Guid currentUserId, CancellationToken cancellationToken = default)
+    public Task<TransactionPolicyResult> EvaluateAsync(Transaction transaction, Guid currentUserId, CancellationToken cancellationToken = default)
     {
         var isAdmin = _userContext.IsInRole("Admin");
-        return isAdmin
+        var result = isAdmin
             ? TransactionPolicyResult.Success()
             : TransactionPolicyResult.Failure("Only Admins can withdraw large amounts.");
+
+        return Task.FromResult(result);
     }
 }

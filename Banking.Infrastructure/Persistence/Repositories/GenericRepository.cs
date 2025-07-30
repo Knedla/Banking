@@ -15,38 +15,46 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity>
         _dbSet = dataStore.Get<TEntity>();
     }
 
-    public async Task<TEntity?> GetByIdAsync(Guid id)
+    public Task<TEntity?> GetByIdAsync(Guid id)
     {
-        return _dbSet.Find(s => s.Id == id);
+        var entity = _dbSet.Find(s => s.Id == id);
+        return Task.FromResult(entity);
     }
 
-    public async Task<IEnumerable<TEntity>> GetAllAsync()
+    public Task<IEnumerable<TEntity>> GetAllAsync()
     {
-        return _dbSet.ToList();
+        var list = _dbSet.ToList();
+        return Task.FromResult<IEnumerable<TEntity>>(list);
     }
 
-    public async Task AddAsync(TEntity entity)
+    public Task AddAsync(TEntity entity)
     {
         _dbSet.Add(entity);
+        return Task.CompletedTask;
     }
 
-    public async Task UpdateAsync(TEntity entity)
+    public Task UpdateAsync(TEntity entity)
     {
         var oldEntity = _dbSet.Find(s => s.Id == entity.Id);
         if (oldEntity != null)
             _dbSet.Remove(oldEntity);
+
         _dbSet.Add(entity);
+        return Task.CompletedTask;
     }
 
-    public async Task DeleteByIdAsync(Guid id)
+    public Task DeleteByIdAsync(Guid id)
     {
         var oldEntity = _dbSet.Find(s => s.Id == id);
         if (oldEntity != null)
             _dbSet.Remove(oldEntity);
+
+        return Task.CompletedTask;
     }
 
-    public async Task<bool> ExistsAsync(Guid id)
+    public Task<bool> ExistsAsync(Guid id)
     {
-        return _dbSet.Any(s => s.Id == id);
+        var exists = _dbSet.Any(s => s.Id == id);
+        return Task.FromResult(exists);
     }
 }

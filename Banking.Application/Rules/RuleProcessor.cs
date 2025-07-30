@@ -15,7 +15,7 @@ public class RuleProcessor : IRuleProcessor
         _evaluator = evaluator;
     }
 
-    public async Task ApplyRulesAsync<T>(T context) where T : class
+    public Task ApplyRulesAsync<T>(T context) where T : class
     {
         var eventType = typeof(T).Name;
 
@@ -32,8 +32,7 @@ public class RuleProcessor : IRuleProcessor
 
                 if (context is IRuleEntity ruleEntity)
                 {
-                    if (ruleEntity.AppliedRules == null)
-                        ruleEntity.AppliedRules = new List<AppliedRule>();
+                    ruleEntity.AppliedRules ??= new List<AppliedRule>();
 
                     ruleEntity.AppliedRules.Add(new AppliedRule
                     {
@@ -46,5 +45,7 @@ public class RuleProcessor : IRuleProcessor
                 }
             }
         }
+
+        return Task.CompletedTask;
     }
 }
