@@ -14,14 +14,14 @@ public class CreateAccountRequestService : ICreateAccountRequestService
 {
     private readonly ICreateAccountService _createAccountService;
     private readonly IWorkItemRepository _workItemRepository;
-    private readonly IStateTransitionValidator<WorkItemStatus> _workItemStatusTransitionValidator;
+    private readonly IStateValidator<WorkItemStatus> _workItemStatusTransitionValidator;
     private readonly IDomainEventDispatcher _domainEventDispatcher;
     private readonly IDepositService _depositService;
 
     public CreateAccountRequestService(
         ICreateAccountService createAccountService,
         IWorkItemRepository workItemRepository,
-        IStateTransitionValidator<WorkItemStatus> workItemStatusTransitionValidator,
+        IStateValidator<WorkItemStatus> workItemStatusTransitionValidator,
         IDomainEventDispatcher domainEventDispatcher,
         IDepositService depositService)
     {

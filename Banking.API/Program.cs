@@ -24,9 +24,9 @@ builder.Services.AddNotification(builder.Configuration);
 builder.Services.AddPolicy(builder.Configuration);
 
 // StateMachine
-builder.Services.AddSingleton<IStateTransitionValidator<TransactionStatus>, TransactionStatusTransitionValidator>();
-builder.Services.AddSingleton<IStateTransitionValidator<ApprovalStatus>, ApprovalStatusTransitionValidator>();
-builder.Services.AddSingleton<IStateTransitionValidator<WorkItemStatus>, WorkItemStatusTransitionValidator>();
+builder.Services.AddSingleton<ITransactionStateValidator, TransactionStatusValidator>();
+builder.Services.AddSingleton<IStateValidator<ApprovalStatus>, ApprovalStatusTransitionValidator>();
+builder.Services.AddSingleton<IStateValidator<WorkItemStatus>, WorkItemStatusTransitionValidator>();
 
 // Account
 builder.Services.AddSingleton<IAccountNumberGenerator, AccountNumberGenerator>();
@@ -94,30 +94,3 @@ var depositRequest = new DepositRequest()
 
 DepositController depositController = new DepositController();
 depositController.Deposit(depositCommandHandler, depositRequest, CancellationToken.None);
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-
-
-
-
-TransactionStatusTransitionValidator
-ApprovalStatusTransitionValidator
-ApprovalService call
-
-
-
-
-jos jedan sloj izmedju entiteta i objekata u servisima
-
-*/

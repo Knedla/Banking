@@ -4,11 +4,11 @@ namespace Banking.Domain.Common;
 
 public class StateMachine<TState> : IStateMachine<TState> where TState : Enum
 {
-    private readonly IStateTransitionValidator<TState> _validator;
+    private readonly IStateValidator<TState> _validator;
 
     public TState Current { get; private set; }
 
-    public StateMachine(TState initial, IStateTransitionValidator<TState> validator)
+    public StateMachine(TState initial, IStateValidator<TState> validator)
     {
         Current = initial;
         _validator = validator ?? throw new ArgumentNullException(nameof(validator));

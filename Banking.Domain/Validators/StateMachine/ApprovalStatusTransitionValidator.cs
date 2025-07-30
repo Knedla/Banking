@@ -3,7 +3,7 @@ using Banking.Domain.Interfaces.StateMachine;
 
 namespace Banking.Domain.Validators.StateMachine;
 
-public class ApprovalStatusTransitionValidator : IStateTransitionValidator<ApprovalStatus>
+public class ApprovalStatusTransitionValidator : IStateValidator<ApprovalStatus>
 {
     private static readonly Dictionary<ApprovalStatus, ApprovalStatus[]> _validTransitions = new()
     {

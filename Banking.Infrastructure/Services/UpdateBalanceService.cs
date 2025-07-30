@@ -3,48 +3,22 @@ using Banking.Domain.Entities;
 using Banking.Domain.Entities.Accounts;
 using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
+using Banking.Domain.Interfaces.StateMachine;
 using Banking.Domain.Repositories;
 
 namespace Banking.Infrastructure.Services;
 
-public class UpdateBalanceService : IUpdateBalanceService // should be triggered on every TransactionStatus changed
+public class UpdateBalanceService : IUpdateBalanceService
 {
     private readonly IAccountRepository _accountRepository;
+    private readonly ITransactionStateValidator _transactionStateValidator;
 
-    // centralize somehow this HashSets with TransactionStatusTransitionValidator -> aka TransactionStatus related thing in one place
-    private readonly HashSet<TransactionStatus> doNotApplyStatuses = new HashSet<TransactionStatus>
-    {
-        TransactionStatus.Draft,
-    };
-
-    private readonly HashSet<TransactionStatus> applyToActualBalanceStatuses = new HashSet<TransactionStatus>
-    {
-        TransactionStatus.Processing,
-        TransactionStatus.Scheduled,
-
-        TransactionStatus.Approved,
-        TransactionStatus.Pending,
-        TransactionStatus.Posted,
-        TransactionStatus.Suspended,
-    };
-
-    private readonly HashSet<TransactionStatus> rollbackFromActualBalanceStatuses = new HashSet<TransactionStatus>
-    {
-        TransactionStatus.Reversed,
-        TransactionStatus.Cancelled,
-        TransactionStatus.Voided,
-        TransactionStatus.Failed,
-        TransactionStatus.Rejected,
-    };
-
-    private readonly HashSet<TransactionStatus> commitToBalanceStatuses = new HashSet<TransactionStatus>
-    {
-        TransactionStatus.Completed
-    };
-
-    public UpdateBalanceService(IAccountRepository accountRepository)
+    public UpdateBalanceService(
+        IAccountRepository accountRepository,
+        ITransactionStateValidator transactionStateValidator)
     {
         _accountRepository = accountRepository;
+        _transactionStateValidator = transactionStateValidator;
     }
 
     public async Task UpdateBalanceAsync(Transaction transaction)
@@ -57,22 +31,29 @@ public class UpdateBalanceService : IUpdateBalanceService // should be triggered
         if (account == null)
             throw new Exception($"Cannot find account.");
 
+
+        // if mony out - update AvailableBalance, update on transaction added / any status change 
+        // za odlazece transakcije fijeva, treba da napravim ulazne transakcije u banku
+        // TRANSFER PREBACI SA JEDNOG RACUNA NA DRUGI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
         var holding = GetTransactionHolding(account, transaction);
 
         if (holding.Type == TransactionHoldingType.Incomming)
         {
-            if (commitToBalanceStatuses.Contains(transaction.Status))
+            if (_transactionStateValidator.GetCommitToBalanceStatuses().Contains(transaction.Status))
                 CommitToBalanceStatuses(account, holding);
         }
         else
         {
-            if (doNotApplyStatuses.Contains(transaction.Status))
+            if (_transactionStateValidator.GetDoNotApplyToAccountBalanceStatuses().Contains(transaction.Status))
                 RemoveFromAvailableBalance(account, holding);
-            else if (applyToActualBalanceStatuses.Contains(transaction.Status))
+            else if (_transactionStateValidator.GetApplyToActualBalanceStatuses().Contains(transaction.Status))
                 ApplyToAvailableBalance(account, holding);
-            else if (rollbackFromActualBalanceStatuses.Contains(transaction.Status))
+            else if (_transactionStateValidator.GetRollbackFromActualBalanceStatuses().Contains(transaction.Status))
                 RemoveFromAvailableBalance(account, holding);
-            else if (commitToBalanceStatuses.Contains(transaction.Status))
+            else if (_transactionStateValidator.GetCommitToBalanceStatuses().Contains(transaction.Status))
                 CommitToBalanceStatuses(account, holding);
         }
         await _accountRepository.UpdateAsync(account);

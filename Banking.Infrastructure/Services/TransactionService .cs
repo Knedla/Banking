@@ -14,7 +14,7 @@ public class TransactionService : ITransactionService
 {
     private readonly ITransactionRepository _transactionRepository;
     private readonly IUpdateBalanceService _updateBalanceService;
-    private readonly IStateTransitionValidator<TransactionStatus> _stateTransitionValidator;
+    private readonly ITransactionStateValidator _transactionStateValidator;
     private readonly IFraudDetectionService _fraudDetectionService;
     private readonly ITransactionApprovalService _transactionApprovalService;
     private readonly ITransactionFeeService _transactionFeeService;
@@ -24,7 +24,7 @@ public class TransactionService : ITransactionService
     public TransactionService(
         ITransactionRepository transactionRepository,
         IUpdateBalanceService updateBalanceService,
-        IStateTransitionValidator<TransactionStatus> stateTransitionValidator,
+        ITransactionStateValidator transactionStateValidator,
         IFraudDetectionService fraudDetectionService,
         ITransactionApprovalService transactionApprovalService,
         ITransactionFeeService transactionFeeService,
@@ -33,7 +33,7 @@ public class TransactionService : ITransactionService
     {
         _transactionRepository = transactionRepository;
         _updateBalanceService = updateBalanceService;
-        _stateTransitionValidator = stateTransitionValidator;
+        _transactionStateValidator = transactionStateValidator;
         _fraudDetectionService = fraudDetectionService;
         _transactionApprovalService = transactionApprovalService;
         _transactionFeeService = transactionFeeService;
@@ -85,7 +85,7 @@ public class TransactionService : ITransactionService
 
     public async Task ChangeStatusAsync(Transaction transaction, TransactionStatus newStatus, Guid currentUserId, CancellationToken cancellationToken = default)
     {
-        if (!_stateTransitionValidator.IsValidTransition(transaction.Status, newStatus))
+        if (!_transactionStateValidator.IsValidTransition(transaction.Status, newStatus))
             throw new Exception($"Transaction cannot change from {transaction.Status} to {newStatus}.");
 
         transaction.Status = newStatus;
@@ -100,14 +100,12 @@ public class TransactionService : ITransactionService
         if (transaction == null)
             throw new Exception($"Cannot resolve transaction.");
 
+        var systemUserId = Guid.NewGuid(); // TODO: resolve systemUserId
 
+        await ChangeStatusAsync(transaction, TransactionStatus.Completed, systemUserId); // overhead to execute UpdateAsync every time 
 
-
-
-
-
-
-
+        foreach (var item in transaction.RelatedTransactions)
+            await ChangeStatusAsync(item, TransactionStatus.Completed, systemUserId); // overhead to execute UpdateAsync every time 
 
         await _domainEventDispatcher.RaiseAsync(new TransactionExecutedEvent(
                 transaction.Id,

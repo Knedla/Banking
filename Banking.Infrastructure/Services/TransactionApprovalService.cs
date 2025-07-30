@@ -4,7 +4,9 @@ using Banking.Application.Interfaces.Services;
 using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
 using Banking.Domain.Interfaces.Polices;
+using Banking.Domain.Interfaces.StateMachine;
 using Banking.Domain.Models;
+using System.Net.NetworkInformation;
 
 namespace Banking.Application.Services;
 
@@ -13,47 +15,41 @@ public class TransactionApprovalService : ITransactionApprovalService
     private readonly ITransactionApprovalPolicy _transactionApprovalPolicy;
     private readonly IDomainEventDispatcher _domainEventDispatcher;
     private readonly ITransactionService _transactionService;
+    private readonly ITransactionStateValidator _transactionStateValidator;
 
     public TransactionApprovalService(
         ITransactionApprovalPolicy transactionApprovalPolicy,
         IDomainEventDispatcher domainEventDispatcher,
-        ITransactionService transactionService)
+        ITransactionService transactionService,
+        ITransactionStateValidator transactionStateValidator)
     {
         _transactionApprovalPolicy = transactionApprovalPolicy;
         _domainEventDispatcher = domainEventDispatcher;
         _transactionService = transactionService;
+        _transactionStateValidator = transactionStateValidator;
     }
 
-    public async Task<ApprovalDecision> ApproveWithRelatedTransactionsAsync(Transaction transaction, Guid currentUserId, CancellationToken cancellationToken = default)
+    public async Task<List<ApprovalDecision>> ApproveWithRelatedTransactionsAsync(Transaction transaction, Guid currentUserId, CancellationToken cancellationToken = default)
     {
-        // PROMENA STATUSA TREBA DA SE DESAVA NA SVIM TRANSAKCIJAMA I ONIM SUB I ORIGINALNOJ
-        // trigger for every subtransactions... !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // ne mora svaka subtransakcija da se apruvuje, ali one sto nisu u krajnjim statusima bi trebalo da se pomere sa trenutnog na approve
+        var approvalDecisions = new List<ApprovalDecision>();
 
-        // if mony out - update AvailableBalance, update on transaction added / any status change 
-        // za odlazece transakcije fijeva, treba da napravim ulazne transakcije u banku
+        var approvalDecision = await ApproveAsync(transaction, currentUserId, cancellationToken);
+        approvalDecisions.Add(approvalDecision);
+        var endTransactionStatuses = _transactionStateValidator.GetEndTransactionStatuses();
 
-        // TRANSFER PREBACI SA JEDNOG RACUNA NA DRUGI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        foreach (var item in transaction.RelatedTransactions.Where(s => !endTransactionStatuses.Contains(s.Status)))
+        {
+            approvalDecision = await ApproveAsync(transaction, currentUserId, cancellationToken);
+            approvalDecisions.Add(approvalDecision);
+        }
 
-        // if approved triger execute
-
-
-        await _domainEventDispatcher.RaiseAsync(new TransactionWithRelatedTransactionsApprovedEvent(
+        if (approvalDecisions.All(s => s.IsApproved))
+            await _domainEventDispatcher.RaiseAsync(new TransactionWithRelatedTransactionsApprovedEvent(
                 transaction.Id,
                 transaction.TransactionInitializedById ?? Guid.Empty // InvolvedPartyId prop should be removed from IDomainEvent, eventually
             ));
 
-
-        throw new NotImplementedException();
-
-
-        // await _transactionService.CompleteAsync(transaction, currentUserId, cancellationToken); //////////////////////////////////////////////////////////////////////////////////////////////////////
-        /*
-        
-        */
-
-        // ne mogu da stavim da se okida event i uApproveAsync
-        // onda ce svaki put kad odavde pozovem to da se okine event ... a treba mi ako su sve transakcije odobremen da moze da se izvrsi
+        return approvalDecisions;
     }
 
     public async Task<ApprovalDecision> ApproveAsync(Transaction transaction, Guid currentUserId, CancellationToken cancellationToken = default)
