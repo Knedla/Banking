@@ -29,10 +29,10 @@ public class TransferExecutionTransactionCommandHandler
         var result = await _transferService.TransferAsync(context.Input);
         context.Output = result;
 
-        var evt = new TransactionExecutedEvent( // TODO: centralize evets creation 
+        var evt = new TransactionExecutedEvent( // TODO: centralize events creation 
             result.TransactionId,
             result.SourceAccountId,
-            result.DestinationAccountId,
+            result.DestinationAccountNumber,
             result.InvolvedPartyId,
             result.Amount,
             result.Currency,

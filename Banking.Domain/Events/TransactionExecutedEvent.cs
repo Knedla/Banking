@@ -5,7 +5,7 @@ namespace Banking.Application.Events;
 public record TransactionExecutedEvent(
     Guid TransactionId,
     Guid SourceAccountId,
-    Guid DestinationAccountId,
+    string DestinationAccountNumber,
     Guid InvolvedPartyId,
     decimal Amount,
     string Currency,

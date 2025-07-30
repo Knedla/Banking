@@ -1,6 +1,6 @@
 ﻿namespace Banking.Domain.Entities.Transactions;
 
-public class RecipientDetails
+public class CounterpartyAccountDetails
 {
     public string? Name { get; set; }
     public string? AccountNumber { get; set; }          // local format

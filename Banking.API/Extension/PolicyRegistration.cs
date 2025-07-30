@@ -1,7 +1,7 @@
 ﻿using Banking.Application.Interfaces;
 using Banking.Application.Rules;
 using Banking.Domain.Configuration;
-using Banking.Domain.Interfaces.Plicies;
+using Banking.Domain.Interfaces.Polices;
 using Banking.Domain.Interfaces.Rules;
 using Banking.Infrastructure.Rules.TransactionApprovals;
 using Banking.Infrastructure.Rules.TransactionFees;

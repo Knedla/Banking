@@ -1,4 +1,5 @@
 ﻿using Banking.Application.Interfaces.Services;
+using Banking.Application.Policies;
 using Banking.Application.Services;
 using Banking.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,8 @@ public static class ServiceRegistration
         services.AddScoped<IUserContextService, UserContextService> ();
         services.AddScoped<ITransactionApprovalService, TransactionApprovalService>();
         services.AddScoped<ITransactionFeeService, TransactionFeeService>();
+        services.AddScoped(typeof(IPolicyService<>), typeof(PolicyService<>));
+
 
         return services;
     }

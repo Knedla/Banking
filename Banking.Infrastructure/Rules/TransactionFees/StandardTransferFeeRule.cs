@@ -17,7 +17,7 @@ public class StandardTransferFeeRule : ITransactionFeeRule
 
     public Task<bool> AppliesToAsync(Transaction transaction)
     {
-        bool isInternational = !string.IsNullOrEmpty(transaction.RecipientDetails?.SwiftCode) || !string.IsNullOrEmpty(transaction.RecipientDetails?.Iban); // TODO: resolve isInternational
+        bool isInternational = !string.IsNullOrEmpty(transaction.CounterpartyAccountDetails?.SwiftCode) || !string.IsNullOrEmpty(transaction.CounterpartyAccountDetails?.Iban); // TODO: resolve isInternational
         return Task.FromResult(
             transaction.Type == TransactionType.Transfer && 
             !isInternational &&

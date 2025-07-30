@@ -1,11 +1,11 @@
 ﻿using Banking.Application.Interfaces.Services;
 using Banking.Domain.Entities.Transactions;
-using Banking.Domain.Interfaces.Plicies;
+using Banking.Domain.Interfaces.Polices;
 using Banking.Domain.Policies;
 
 namespace Banking.Infrastructure.Policies;
 
-public class FraudDetectionTransferPolicy : ITransferPolicy // not used, I left them here as an idea...
+public class FraudDetectionTransferPolicy //: ITransferPolicy // not used, I left them here as an idea...
 {
     private readonly IFraudDetectionService _fraudService;
 

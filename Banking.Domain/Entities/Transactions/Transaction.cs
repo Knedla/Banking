@@ -7,6 +7,8 @@ namespace Banking.Domain.Entities.Transactions;
 
 public class Transaction : BaseEntity
 {
+    public Guid InvolvedPartyId { get; set; }
+
     // General linking (e.g. fee → transaction, interest → balance) // TODO: domain rules, enforce that: ReversalTransactionId can only be set when TransactionType != Reversal
     public Guid? RelatedToTransactionId { get; set; }
     
@@ -30,7 +32,7 @@ public class Transaction : BaseEntity
     
     public string? Description { get; set; }
 
-    public RecipientDetails? RecipientDetails { get; set; } // Receiver account information -> save as json
+    public CounterpartyAccountDetails? CounterpartyAccountDetails { get; set; } // save as json ?
 
     [Required]
     public CurrencyAmount InitCurrencyAmount { get; set; }

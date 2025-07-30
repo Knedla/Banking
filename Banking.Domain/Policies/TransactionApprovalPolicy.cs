@@ -1,5 +1,5 @@
 ﻿using Banking.Domain.Entities.Transactions;
-using Banking.Domain.Interfaces.Plicies;
+using Banking.Domain.Interfaces.Polices;
 using Banking.Domain.Interfaces.Rules;
 using Banking.Domain.Models;
 

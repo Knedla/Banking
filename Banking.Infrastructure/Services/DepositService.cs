@@ -3,6 +3,7 @@ using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
 using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
+using Banking.Domain.Interfaces.Polices;
 using Banking.Domain.Repositories;
 using Banking.Domain.ValueObjects;
 
@@ -16,19 +17,22 @@ public class DepositService : IDepositService
     private readonly IFraudDetectionService _fraudDetectionService;
     private readonly ITransactionApprovalService _transactionApprovalService;
     private readonly ITransactionFeeService _transactionFeeService;
+    private readonly IPolicyService<IDepositPolicy> _policyService;
 
     public DepositService(
         ITransactionRepository transactionRepository,
         IAccountRepository accountRepository,
         ICurrencyExchangeService currencyExchangeService,
         IFraudDetectionService fraudDetectionService,
-        ITransactionApprovalService transactionApprovalService)
+        ITransactionApprovalService transactionApprovalService,
+        IPolicyService<IDepositPolicy> policyService)
     {
         _transactionRepository = transactionRepository;
         _accountRepository = accountRepository;
         _currencyExchangeService = currencyExchangeService;
         _fraudDetectionService = fraudDetectionService;
         _transactionApprovalService = transactionApprovalService;
+        _policyService = policyService;
     }
 
     public async Task<DepositResponse> DepositAsync(DepositRequest request)
@@ -64,6 +68,7 @@ public class DepositService : IDepositService
         var transaction = new Transaction()
         {
             Id = Guid.NewGuid(), // TODO: implement IdGenereator
+            InvolvedPartyId = request.InvolvedPartyId,
             // RelatedToTransactionId
             // ReversalTransactionId
             Timestamp = timestamp,
@@ -94,26 +99,38 @@ public class DepositService : IDepositService
         
         await _transactionRepository.AddAsync(transaction); // trigger event transaction added if needed
 
-        var isSuspiciousTransaction = await _fraudDetectionService.IsSuspiciousTransactionAsync(transaction, CancellationToken.None); // AML calculation
-        if (isSuspiciousTransaction)
+        if (await _fraudDetectionService.IsSuspiciousTransactionAsync(transaction, CancellationToken.None)) // AML calculation
         {
             transaction.Status = TransactionStatus.Suspended;
             await _transactionRepository.UpdateAsync(transaction);
 
-            var result = new DepositResponse();
+            var result = new DepositResponse()
+            {
+                TransactionStatus = transaction.Status 
+            };
             result.AddError("ALM watching you!");
             return result;
         }
 
         await _transactionFeeService.AddFeesAsync(transaction, request.UserId, CancellationToken.None);
 
-        // trigger policies min balance izracunaj dal ima sa svim fijevima 
+        var transactionPolicyResult = await _policyService.EvaluatePoliciesAsync(transaction, request.UserId, CancellationToken.None);
+        if (transactionPolicyResult.Any(s => !s.IsSuccess))
+        {
+            transaction.Status = TransactionStatus.Voided;
+            await _transactionRepository.UpdateAsync(transaction);
 
+            var result = new DepositResponse() 
+            { 
+                TransactionStatus = transaction.Status 
+            };
+            foreach (var item in transactionPolicyResult.Where(s => s!.IsSuccess))
+                result.AddError(item.ErrorMessage);
+            return result;
+        }
+        
         await _transactionApprovalService.ApproveAsync(transaction, request.UserId, CancellationToken.None);
 
-        return new DepositResponse
-        {
-            TransactionStatus = transaction.Status,
-        };
+        return new DepositResponse { TransactionStatus = transaction.Status, };
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Banking.Application.Interfaces.Services;
 using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
-using Banking.Domain.Interfaces.Plicies;
+using Banking.Domain.Interfaces.Polices;
 using Banking.Domain.Repositories;
 using Banking.Domain.ValueObjects;
 using Newtonsoft.Json;
@@ -10,7 +10,7 @@ namespace Banking.Application.Services;
 
 public class TransactionFeeService : ITransactionFeeService
 {
-    private static readonly Guid systemId = Guid.NewGuid(); // TODO: centralize this !!!
+    private static readonly Guid systemUserId = Guid.NewGuid(); // TODO: centralize this !!!
 
     private readonly ITransactionRepository _transactionRepository;
     private readonly ITransactionFeePolicy _transactionFeePolicy;
@@ -47,6 +47,7 @@ public class TransactionFeeService : ITransactionFeeService
             var transactionFee = new Transaction()
             {
                 Id = Guid.NewGuid(), // TODO: implement IdGenereator
+                InvolvedPartyId = transaction.InvolvedPartyId,
                 RelatedToTransactionId = transaction.Id,
                 // ReversalTransactionId
                 Timestamp = timestamp,
@@ -55,7 +56,7 @@ public class TransactionFeeService : ITransactionFeeService
                 Channel = TransactionChannel.System,
                 AccountId = transaction.AccountId,
                 Description = fee.Code,
-                RecipientDetails = new RecipientDetails() { AccountNumber = fee.AccountNumber, PaymentReference = JsonConvert.SerializeObject(fee) },
+                CounterpartyAccountDetails = new CounterpartyAccountDetails() { AccountNumber = fee.AccountNumber, PaymentReference = JsonConvert.SerializeObject(fee) },
 
                 InitCurrencyAmount = currencyAmount,
                 // ExchangeRate
@@ -65,9 +66,9 @@ public class TransactionFeeService : ITransactionFeeService
                 ApprovalStatus = ApprovalStatus.NotRequired,
                 IsDeleted = false,
                 CreatedAt = timestamp,
-                CreatedByUserId = systemId,
+                CreatedByUserId = systemUserId,
                 LastModifiedAt = timestamp,
-                LastModifiedByUserId = systemId,
+                LastModifiedByUserId = systemUserId,
 
                 // RelatedTransactions
                 // ApprovalRequirements

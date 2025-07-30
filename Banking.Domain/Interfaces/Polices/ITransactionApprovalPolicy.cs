@@ -1,7 +1,7 @@
 ﻿using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Models;
 
-namespace Banking.Domain.Interfaces.Plicies;
+namespace Banking.Domain.Interfaces.Polices;
 
 public interface ITransactionApprovalPolicy : IPolicy
 {

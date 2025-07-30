@@ -2,4 +2,4 @@
 
 namespace Banking.Application.Events;
 
-public record DailyLimitReachedEvent(Guid InvolvedPartyId, decimal Limit, decimal Used) : IDomainEvent;
+public record DailyLimitReachedEvent(Guid InvolvedPartyId, decimal Limit, decimal Used) : IDomainEvent; // not used

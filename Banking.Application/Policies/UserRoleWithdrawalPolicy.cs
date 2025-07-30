@@ -1,6 +1,6 @@
 ﻿using Banking.Application.Interfaces.Services;
 using Banking.Domain.Entities.Transactions;
-using Banking.Domain.Interfaces.Plicies;
+using Banking.Domain.Interfaces.Polices;
 using Banking.Domain.Policies;
 
 namespace Banking.Application.Policies;
