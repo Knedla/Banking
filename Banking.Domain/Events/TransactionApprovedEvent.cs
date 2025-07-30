@@ -2,7 +2,7 @@
 
 namespace Banking.Application.Events;
 
-public record TransactionExecutedEvent(
+public record TransactionApprovedEvent(
     Guid TransactionId,
     Guid InvolvedPartyId
 ) : IDomainEvent;

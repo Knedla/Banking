@@ -15,8 +15,11 @@ public class TransferRequestValidationTransactionCommandHandler : IValidationTra
         if (ctx.Input.Amount <= 0)
             throw new ValidationException("Transfer amount must be positive");
 
-        if (ctx.Input.AccountNumber == ctx.Input.CounterpartyAccountDetails.AccountNumber) // mock
-            throw new ValidationException("Cannot transfer to the same account");
+        if (ctx.Input.FromTransactionAccountDetails == null || ctx.Input.ToTransactionAccountDetails == null) // mock
+            throw new ValidationException("Accounts details missing");
+
+        //if (ctx.Input.FromTransactionAccountDetails.AccountNumber == ctx.Input.ToTransactionAccountDetails.AccountNumber) // mock
+        //    throw new ValidationException("Cannot transfer to the same account");
 
         return Task.CompletedTask;
     }

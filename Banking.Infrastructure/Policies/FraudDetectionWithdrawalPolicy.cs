@@ -14,7 +14,7 @@ public class FraudDetectionWithdrawalPolicy //: IWithdrawalPolicy // not used, I
         _fraudService = fraudService;
     }
 
-    public async Task<TransactionPolicyResult> EvaluateAsync(Transaction transaction, Guid currentUserId, CancellationToken cancellationToken = default)
+    public async Task<TransactionPolicyResult> EvaluateAsync(Transaction transaction, Guid userId, CancellationToken cancellationToken = default)
     {
         bool isSuspicious = await _fraudService.IsSuspiciousTransactionAsync(transaction, cancellationToken);
         return isSuspicious

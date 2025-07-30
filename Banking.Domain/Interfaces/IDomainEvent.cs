@@ -2,5 +2,5 @@
 
 public interface IDomainEvent
 {
-    Guid InvolvedPartyId { get; }
+    Guid InvolvedPartyId { get; } // needs to be moved out of here; used as a temp helper prop
 }

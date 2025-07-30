@@ -1,8 +1,8 @@
 ﻿using Banking.Application.Interfaces.Services;
+using Banking.Application.Models.Responses;
 using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
 using Banking.Domain.Interfaces.Polices;
-using Banking.Domain.Repositories;
 using Banking.Domain.ValueObjects;
 using Newtonsoft.Json;
 
@@ -10,20 +10,17 @@ namespace Banking.Application.Services;
 
 public class TransactionFeeService : ITransactionFeeService
 {
-    private static readonly Guid systemUserId = Guid.NewGuid(); // TODO: centralize this !!!
+    private static readonly Guid systemUserId = Guid.NewGuid(); // TODO: centralize getting systemUserId !!!
 
-    private readonly ITransactionRepository _transactionRepository;
     private readonly ITransactionFeePolicy _transactionFeePolicy;
-    private readonly IAccountRepository _accountRepository;
+    private readonly ITransactionService _transactionService;
 
     public TransactionFeeService(
-        ITransactionRepository transactionRepository,
         ITransactionFeePolicy transactionFeePolicy,
-        IAccountRepository accountRepository)
+        ITransactionService transactionService)
     {
-        _transactionRepository = transactionRepository;
         _transactionFeePolicy = transactionFeePolicy;
-        _accountRepository = accountRepository;
+        _transactionService = transactionService;
     }
 
     public async Task AddFeesAsync(Transaction transaction, Guid currentUserId, CancellationToken cancellationToken = default)
@@ -45,23 +42,26 @@ public class TransactionFeeService : ITransactionFeeService
             var transactionFee = new Transaction()
             {
                 Id = Guid.NewGuid(), // TODO: implement IdGenereator
-                InvolvedPartyId = transaction.InvolvedPartyId,
+                // TransactionInitializedById
                 RelatedToTransactionId = transaction.Id,
                 // ReversalTransactionId
                 Timestamp = timestamp,
                 Type = TransactionType.Fee,
                 Status = TransactionStatus.Posted, // probably some minipipeline should be created for fees because they are not an independent transaction but part of the main one. this value is set for convenience
                 Channel = TransactionChannel.System,
-                AccountId = transaction.AccountId,
                 Description = fee.Code,
+
+                FromTransactionAccountDetails = transaction.FromTransactionAccountDetails,
+                ToTransactionAccountDetails = new TransactionAccountDetails()
+                {
+                    AccountNumber = fee.AccountNumber,
+                },
                 CounterpartyAccountDetails = new CounterpartyAccountDetails()
                 {
-                    Role = CounterpartyTransactionRole.Receiver,
-                    AccountNumber = fee.AccountNumber, 
                     PaymentReference = JsonConvert.SerializeObject(fee)
                 },
 
-                InitCurrencyAmount = currencyAmount,
+                FromCurrencyAmount = currencyAmount,
                 // ExchangeRate
                 CalculatedCurrencyAmount = currencyAmount,
 
@@ -79,7 +79,7 @@ public class TransactionFeeService : ITransactionFeeService
                 // Batches
             };
             transaction.RelatedTransactions.Add(transactionFee);
-            await _transactionRepository.AddAsync(transaction);
+            await _transactionService.AddAsync<TransactionResponse>(transaction, currentUserId, cancellationToken); // should I do something with result ?
         }
     }
 }

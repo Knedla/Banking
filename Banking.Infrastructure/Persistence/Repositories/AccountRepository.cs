@@ -6,4 +6,9 @@ namespace Banking.Infrastructure.Persistence.Repositories;
 public class AccountRepository : GenericRepository<Account>, IAccountRepository
 {
     public AccountRepository(IBankingDataStore dataStore) : base(dataStore) { }
+
+    public async Task<Account?> GetByAccountNumberAsync(string accountNumber)
+    {
+        return _dbSet.Find(s => s.AccountNumber == accountNumber);
+    }
 }

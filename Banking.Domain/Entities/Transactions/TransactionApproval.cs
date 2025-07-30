@@ -27,7 +27,7 @@ public class TransactionApproval
     [StringLength(100)]
     public string? Comments { get; set; }
 
-    // resolved references
+    // References
     public Transaction Transaction { get; set; }
     public TransactionApprovalRequirement Requirement { get; set; }
 }

@@ -37,7 +37,7 @@ public class Account : BaseEntity
     //public ICollection<AccountMandate> Mandates { get; set; }
     //public ICollection<AccountPolicy> Policies { get; set; }
 
-    // resolved references
+    // References
     public InvolvedParty InvolvedParty { get; set; }
     public Currency? PrimaryCurrency { get; set; }
 }

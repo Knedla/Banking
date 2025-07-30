@@ -14,6 +14,8 @@ public static class EventsRegistration
         // Register the dispatcher
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
         // Register event handlers 
+        services.AddScoped<IDomainEventHandler<TransactionApprovedEvent>, TransactionApprovedHandler>();
+        services.AddScoped<IDomainEventHandler<TransactionApprovedEvent>, TransactionWithRelatedTransactionsApprovedHandler>();
         services.AddScoped<IDomainEventHandler<TransactionExecutedEvent>, TransactionExecutedHandler>();
         services.AddScoped<IDomainEventHandler<CreateAccountRequestAddedEvent>, CreateAccountRequestAddedHandler>();
         //services.AddScoped(typeof(IDomainEventHandler<>), typeof(WorkItemAddedHandler<>)); // TODO: check why is not working ...

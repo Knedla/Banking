@@ -47,17 +47,6 @@ public class UpdateBalanceService : IUpdateBalanceService // should be triggered
         _accountRepository = accountRepository;
     }
 
-    public async Task UpdateBalanceAndRelatedTransactionsAsync(Transaction transaction) // can be executed parallel
-    {
-        await UpdateBalanceAsync(transaction);
-
-        if (transaction.RelatedTransactions == null)
-            return;
-
-        foreach (var relatedTransactions in transaction.RelatedTransactions)
-            await UpdateBalanceAsync(relatedTransactions); // can be executed paralel
-    }
-
     public async Task UpdateBalanceAsync(Transaction transaction)
     {
         if (transaction == null)
@@ -156,19 +145,18 @@ public class UpdateBalanceService : IUpdateBalanceService // should be triggered
             holding = new TransactionHolding()
             {
                 TransactionId = transaction.Id,
-                Type = 
-                    holding.Transaction.Type == TransactionType.Deposit ||
-                    holding.Transaction.CounterpartyAccountDetails?.Role == CounterpartyTransactionRole.Sender // mock calculation
-                        ? TransactionHoldingType.Incomming 
-                        : TransactionHoldingType.Outgoing,
+                Type =
+                    transaction.Type == TransactionType.Withdrawal ||
+                    transaction.Type == TransactionType.Transfer ||
+                    transaction.Type == TransactionType.Fee // mock calculation
+                        ? TransactionHoldingType.Outgoing
+                        : TransactionHoldingType.Incomming,
                 IsAppliedToAvailableBalance = false,
                 IsAppliedToBalance = false,
                 Transaction = transaction
             };
-            
             account.Holdings.Add(holding);
         }
-
         return holding;
     }
 }

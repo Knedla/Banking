@@ -7,7 +7,7 @@ namespace Banking.Domain.Entities.Transactions;
 
 public class Transaction : BaseEntity
 {
-    public Guid InvolvedPartyId { get; set; }
+    public Guid? TransactionInitializedById { get; set; } // Id of InvolvedParty
 
     // General linking (e.g. fee → transaction, interest → balance) // TODO: domain rules, enforce that: ReversalTransactionId can only be set when TransactionType != Reversal
     public Guid? RelatedToTransactionId { get; set; }
@@ -29,13 +29,16 @@ public class Transaction : BaseEntity
 
     [Required]
     public Guid AccountId { get; set; }
-    
+
+    public TransactionAccountDetails? FromTransactionAccountDetails { get; set; }
+    public TransactionAccountDetails? ToTransactionAccountDetails { get; set; }
+
     public string? Description { get; set; }
 
     public CounterpartyAccountDetails? CounterpartyAccountDetails { get; set; } // save as json ?
 
     [Required]
-    public CurrencyAmount InitCurrencyAmount { get; set; }
+    public CurrencyAmount FromCurrencyAmount { get; set; }
 
     public ExchangeRate? ExchangeRate { get; set; }         // Conversion rate to base currency (e.g., RSD).
 
@@ -56,7 +59,7 @@ public class Transaction : BaseEntity
     public ICollection<TransactionApproval> Approvals { get; set; }
     public ICollection<TransactionBatch> Batches { get; set; } // not used
 
-    // resolved references
+    // References
     public Transaction? RelatedToTransaction { get; set; }
     public Transaction? ReversalTransaction { get; set; }
     public Account Account { get; set; }

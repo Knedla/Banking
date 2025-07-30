@@ -1,6 +1,7 @@
 ﻿using Banking.Application.Events;
 using Banking.Application.Interfaces;
 using Banking.Application.Interfaces.Services;
+using Banking.Application.Models.Common;
 using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
 using Banking.Domain.Enumerations;
@@ -84,8 +85,11 @@ public class CreateAccountRequestService : ICreateAccountRequestService
             await _depositService.DepositAsync(new DepositRequest()
             {
                 UserId = request.UserId,
-                InvolvedPartyId = workItem.InvolvedPartyId,
-                AccountId = createAccountResponse.AccountId,
+                TransactionInitializedById = workItem.InvolvedPartyId, // is this count as system initialization ?
+                TransactionAccountDetails = new TransactionAccountDetails()
+                {
+                    AccountId = createAccountResponse.AccountId
+                },
                 FromCurrencyCode = workItem.FromCurrencyCode,
                 ToCurrencyCode = workItem.ToCurrencyCode,
                 Amount = workItem.InitialDeposit,

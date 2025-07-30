@@ -1,68 +1,73 @@
 ﻿using Banking.Application.Interfaces.Services;
-using Banking.Domain.Entities.Accounts;
 using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Interfaces.Polices;
+using Banking.Domain.Policies;
 using Banking.Domain.Repositories;
-using Banking.Domain.ValueObjects;
 using Banking.Infrastructure.Extensaions;
-using System.Text;
 
-namespace Banking.Domain.Policies
+namespace Banking.Infrastructure.Policies;
+
+public class MinimumBalanceWithdrawalPolicy : IWithdrawalPolicy
 {
-    public class MinimumBalanceWithdrawalPolicy : IWithdrawalPolicy
+    private readonly IAccountRepository _accountRepository;
+    private readonly ICurrencyExchangeService _currencyExchangeService;
+
+    public MinimumBalanceWithdrawalPolicy(IAccountRepository accountRepository, ICurrencyExchangeService currencyExchangeService)
     {
-        private readonly IAccountRepository _accountRepository;
-        private readonly ICurrencyExchangeService _currencyExchangeService;
+        _accountRepository = accountRepository;
+        _currencyExchangeService = currencyExchangeService;
+    }
 
-        public MinimumBalanceWithdrawalPolicy(IAccountRepository accountRepository, ICurrencyExchangeService currencyExchangeService)
+    public async Task<TransactionPolicyResult> EvaluateAsync(Transaction transaction, Guid userId, CancellationToken cancellationToken = default)
+    {
+        var account = await transaction.FromTransactionAccountDetails.TryResolveAccount(_accountRepository);
+
+        if (account == null)
+            return TransactionPolicyResult.Failure("Account not found.");
+
+        var primaryCurrencyCode = transaction.FromTransactionAccountDetails.Account.PrimaryCurrencyCode;
+        var summary = transaction.SumByFromCurrencyCode();
+
+        decimal availableBalance = 0;
+        decimal requiredAmount = 0;
+        foreach (var kv in summary)
         {
-            _accountRepository = accountRepository;
-            _currencyExchangeService = currencyExchangeService;
-        }
+            var balance = account.Balances.FirstOrDefault(s => s.CurrencyCode == kv.Key);
+            if (balance == null)
+                return TransactionPolicyResult.Failure($"Balance {kv.Key} not found.");
 
-        public Task<TransactionPolicyResult> EvaluateAsync(Transaction transaction, Guid currentUserId, CancellationToken cancellationToken = default)
-        {
-            var account = _accountRepository.GetByIdAsync(transaction.AccountId).Result;
-
-            if (account == null)
-                return Task.FromResult(TransactionPolicyResult.Failure("Account not found."));
-
-            var summary = transaction.SumByCurrencyCode();
-
-            var stringBuilder = new StringBuilder();
-            foreach (var kv in summary)
+            if (balance.CurrencyCode == primaryCurrencyCode)
             {
-                var balance = account.Balances.FirstOrDefault(s => s.CurrencyCode == kv.Key);
-                if (balance == null)
-                    return Task.FromResult(TransactionPolicyResult.Failure($"Balance {kv.Key} not found."));
-
-                // CALCULATE OVERDRAFT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                var availableBalance = 0; // await CalculateAvailableBalance(balance, account, account.Overdraft, null).Result;
-
-                if (kv.Value > availableBalance)
-                    stringBuilder.Append($"Insufficient balance {kv.Key}: {kv.Value}. ");
+                availableBalance += balance.Balance;
+                requiredAmount += balance.Balance;
+                continue;
             }
 
-            return stringBuilder.Length > 0 ?
-                 Task.FromResult(TransactionPolicyResult.Failure(stringBuilder.ToString())) :
-                 Task.FromResult(TransactionPolicyResult.Success());
+            var exchangeRate = await _currencyExchangeService.GetExchangeRateAsync(kv.Key, primaryCurrencyCode);
+
+            var convertedCurrencyAmount = await _currencyExchangeService.ConvertAsync(balance.Balance, exchangeRate);
+            availableBalance += convertedCurrencyAmount.Amount;
+
+            convertedCurrencyAmount = await _currencyExchangeService.ConvertAsync(kv.Value, exchangeRate);
+            requiredAmount += convertedCurrencyAmount.Amount;
         }
 
-        async Task<decimal> CalculateAvailableBalance(AccountBalance accountBalance, Overdraft overdraft, ExchangeRate exchangeRate)
+        if (transaction.FromTransactionAccountDetails.Account.Overdraft != null)
         {
-            if (overdraft == null)
-                return accountBalance.AvailableBalance;
-
-            if (accountBalance.CurrencyCode == overdraft.CurrencyCode)
-                return accountBalance.AvailableBalance + overdraft.Limit;
-
-            if (exchangeRate == null ||
-                exchangeRate.FromCurrency != overdraft.CurrencyCode ||
-                exchangeRate.ToCurrency != accountBalance.CurrencyCode)
-                throw new Exception("AccountBalanceExtension wrong exchange rate"); // error-prone, come up with a better solution or set restrictions so that the overdraft does not have to change currency
-
-            var result = await _currencyExchangeService.ConvertAsync(overdraft.Limit, exchangeRate);
-            return accountBalance.AvailableBalance + result.Amount;
+            if (transaction.FromTransactionAccountDetails.Account.Overdraft.CurrencyCode == primaryCurrencyCode)
+                availableBalance += transaction.FromTransactionAccountDetails.Account.Overdraft.Limit;
+            else
+            {
+                var amount = await _currencyExchangeService.ConvertAsync(
+                    transaction.FromTransactionAccountDetails.Account.Overdraft.Limit, 
+                    transaction.FromTransactionAccountDetails.Account.Overdraft.CurrencyCode,
+                    primaryCurrencyCode);
+                availableBalance += amount;
+            }
         }
+
+        return (requiredAmount > availableBalance) // error-prone due to multiple conversion, come up with a better solution or add some restrictions
+            ? TransactionPolicyResult.Failure($"Insufficient balance {primaryCurrencyCode}: {requiredAmount}. ")
+            : TransactionPolicyResult.Success();
     }
 }

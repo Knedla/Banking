@@ -14,7 +14,7 @@ public class ExchangeRate
     [Required, Column(TypeName = "decimal(18,2)")]
     public decimal Rate { get; set; }
 
-    // resolved references
+    // References
     public Currency FromCurrency { get; set; }
     public Currency ToCurrency { get; set; }
 }

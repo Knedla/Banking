@@ -18,7 +18,7 @@ public class AccountBalance
     [Required, Column(TypeName = "decimal(18,2)")]
     public decimal AvailableBalance { get; set; }
 
-    // resolved references
+    // References
     public Account Account { get; set; }
     public Currency Currency { get; set; }
 }

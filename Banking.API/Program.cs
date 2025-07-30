@@ -4,6 +4,7 @@ using Banking.Application.Extensions;
 using Banking.Application.Interfaces;
 using Banking.Application.Interfaces.Factories;
 using Banking.Application.Interfaces.Services;
+using Banking.Application.Models.Common;
 using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
 using Banking.Domain.Enumerations;
@@ -80,8 +81,11 @@ var depositCommandHandler = transactionCommandHandlerFactory.Create<DepositReque
 var depositRequest = new DepositRequest()
 {
     UserId = Guid.NewGuid(),
-    AccountId = new Guid("f6d6cde9-3e0e-4a7a-9081-efb972f9d0b2"),
-    InvolvedPartyId = new Guid("9ba7d2a3-6a9e-4e78-93a0-42f3d5ec8ef6"),
+    TransactionAccountDetails = new TransactionAccountDetails()
+    {
+        AccountId = new Guid("f6d6cde9-3e0e-4a7a-9081-efb972f9d0b2")
+    },
+    TransactionInitializedById = new Guid("9ba7d2a3-6a9e-4e78-93a0-42f3d5ec8ef6"),
     FromCurrencyCode = "USD",
     ToCurrencyCode = "EUR",
     Amount = 500,

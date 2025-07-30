@@ -32,6 +32,9 @@ public class NotificationEngine<TEvent> : INotificationEngine<TEvent> where TEve
         _notificationDestinationResolver = notificationDestinationResolver;
     }
 
+    // refactor needed
+    // current logic is to send a notification only to the person who initiated the transaction
+    // it should send a notification to everyone who is subscribed to it on the account
     public async Task HandleEventAsync(TEvent domainEvent)
     {
         var involvedPartyResponse = await _involvedPartyService.GetInvolvedPartyAsync(new InvolvedPartyRequest() { InvolvedPartyId = domainEvent.InvolvedPartyId });

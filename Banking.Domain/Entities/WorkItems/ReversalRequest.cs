@@ -19,6 +19,6 @@ public class ReversalRequest : WorkItem // not used
     public string? ReviewerComment { get; set; }
 
 
-    // resolved references
+    // References
     public Transaction Transaction { get; set; }
 }

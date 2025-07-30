@@ -4,35 +4,27 @@ using Banking.Application.Interfaces.Services;
 using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
 using Banking.Domain.Interfaces.Polices;
-using Banking.Domain.Interfaces.StateMachine;
 using Banking.Domain.Models;
-using Banking.Domain.Repositories;
 
 namespace Banking.Application.Services;
 
 public class TransactionApprovalService : ITransactionApprovalService
 {
-    private readonly ITransactionRepository _transactionRepository;
     private readonly ITransactionApprovalPolicy _transactionApprovalPolicy;
     private readonly IDomainEventDispatcher _domainEventDispatcher;
-    private readonly IStateTransitionValidator<TransactionStatus> _stateTransitionValidator;
-    private readonly IUpdateBalanceService _updateBalanceService;
+    private readonly ITransactionService _transactionService;
 
     public TransactionApprovalService(
-        ITransactionRepository transactionRepository,
         ITransactionApprovalPolicy transactionApprovalPolicy,
         IDomainEventDispatcher domainEventDispatcher,
-        IStateTransitionValidator<TransactionStatus> stateTransitionValidator,
-        IUpdateBalanceService updateBalanceService)
+        ITransactionService transactionService)
     {
-        _transactionRepository = transactionRepository;
         _transactionApprovalPolicy = transactionApprovalPolicy;
         _domainEventDispatcher = domainEventDispatcher;
-        _stateTransitionValidator = stateTransitionValidator;
-        _updateBalanceService = updateBalanceService;
+        _transactionService = transactionService;
     }
 
-    public Task<ApprovalDecision> ApproveWithRelatedTransactionsAsync(Transaction transaction, Guid currentUserId, CancellationToken cancellationToken = default)
+    public async Task<ApprovalDecision> ApproveWithRelatedTransactionsAsync(Transaction transaction, Guid currentUserId, CancellationToken cancellationToken = default)
     {
         // PROMENA STATUSA TREBA DA SE DESAVA NA SVIM TRANSAKCIJAMA I ONIM SUB I ORIGINALNOJ
         // trigger for every subtransactions... !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -43,7 +35,25 @@ public class TransactionApprovalService : ITransactionApprovalService
 
         // TRANSFER PREBACI SA JEDNOG RACUNA NA DRUGI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+        // if approved triger execute
+
+
+        await _domainEventDispatcher.RaiseAsync(new TransactionWithRelatedTransactionsApprovedEvent(
+                transaction.Id,
+                transaction.TransactionInitializedById ?? Guid.Empty // InvolvedPartyId prop should be removed from IDomainEvent, eventually
+            ));
+
+
         throw new NotImplementedException();
+
+
+        // await _transactionService.CompleteAsync(transaction, currentUserId, cancellationToken); //////////////////////////////////////////////////////////////////////////////////////////////////////
+        /*
+        
+        */
+
+        // ne mogu da stavim da se okida event i uApproveAsync
+        // onda ce svaki put kad odavde pozovem to da se okine event ... a treba mi ako su sve transakcije odobremen da moze da se izvrsi
     }
 
     public async Task<ApprovalDecision> ApproveAsync(Transaction transaction, Guid currentUserId, CancellationToken cancellationToken = default)
@@ -51,12 +61,7 @@ public class TransactionApprovalService : ITransactionApprovalService
         var approvalDecision = await _transactionApprovalPolicy.EvaluateAsync(transaction, currentUserId, cancellationToken);
 
         if (approvalDecision.IsApproved)
-        {
-            if (!_stateTransitionValidator.IsValidTransition(transaction.Status, TransactionStatus.Approved))
-                return ApprovalDecision.Reject($"Transaction cannot change from {transaction.Status} to Approved.");
-            
-            transaction.Status = TransactionStatus.Approved;
-        }
+            await _transactionService.ChangeStatusAsync(transaction, TransactionStatus.Approved, currentUserId, cancellationToken); // ovo ce da se trigeruje na svaku transakciju.... 
         else
         {
             var timestamp = DateTime.UtcNow;
@@ -79,23 +84,7 @@ public class TransactionApprovalService : ITransactionApprovalService
                         Justification = item.Justification,
                         CreatedAt = timestamp
                     });
-        }
-        await _transactionRepository.UpdateAsync(transaction);
-
-        if (approvalDecision.IsApproved)
-        {
-            await _updateBalanceService.UpdateBalanceAndRelatedTransactionsAsync(transaction);
-
-            await _domainEventDispatcher.RaiseAsync(new TransactionExecutedEvent(
-                transaction.Id,
-                transaction.AccountId,
-                transaction.CounterpartyAccountDetails?.AccountNumber,
-                transaction.InvolvedPartyId,
-                transaction.CalculatedCurrencyAmount.Amount,
-                transaction.CalculatedCurrencyAmount.Currency,
-                true,
-                DateTime.UtcNow
-            )); // trigger only for main transaction; should it be triggered for related transactions as well ? ... notifications engine will collect trigger
+            await _transactionService.UpdateAsync(transaction, currentUserId, cancellationToken);
         }
 
         return approvalDecision;

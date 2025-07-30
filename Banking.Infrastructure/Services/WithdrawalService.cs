@@ -3,7 +3,6 @@ using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
 using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
-using Banking.Domain.Interfaces.Polices;
 using Banking.Domain.Repositories;
 using Banking.Domain.ValueObjects;
 
@@ -11,25 +10,15 @@ namespace Banking.Infrastructure.Services;
 
 public class WithdrawalService : IWithdrawalService
 {
-    private readonly ITransactionRepository _transactionRepository;
     private readonly IAccountRepository _accountRepository;
-    private readonly IFraudDetectionService _fraudDetectionService;
-    private readonly ITransactionApprovalService _transactionApprovalService;
-    private readonly ITransactionFeeService _transactionFeeService;
-    private readonly IPolicyService<IWithdrawalPolicy> _policyService;
+    private readonly ITransactionService _transactionService;
 
     public WithdrawalService(
-        ITransactionRepository transactionRepository,
         IAccountRepository accountRepository,
-        IFraudDetectionService fraudDetectionService,
-        ITransactionApprovalService transactionApprovalService,
-        IPolicyService<IWithdrawalPolicy> policyService)
+        ITransactionService transactionService)
     {
-        _transactionRepository = transactionRepository;
         _accountRepository = accountRepository;
-        _fraudDetectionService = fraudDetectionService;
-        _transactionApprovalService = transactionApprovalService;
-        _policyService = policyService;
+        _transactionService = transactionService;
     }
 
     public async Task<WithdrawalResponse> WithdrawAsync(WithdrawalRequest request)
@@ -37,10 +26,15 @@ public class WithdrawalService : IWithdrawalService
         if (request == null)
             throw new Exception($"Request is null.");
 
-        if (request.AccountId == Guid.Empty) // TODO: or any alternative key
+        if (request.TransactionAccountDetails == null)
+            throw new Exception($"TransactionAccountDetails is null.");
+
+        var accountId = request.TransactionAccountDetails.AccountId.Value; // resolve id if needed
+
+        if (accountId == Guid.Empty)
             throw new Exception($"AccountId is null.");
 
-        var account = await _accountRepository.GetByIdAsync(request.AccountId);
+        var account = await _accountRepository.GetByIdAsync(accountId);
 
         if (account == null)
             throw new Exception($"Cannot find account.");
@@ -53,18 +47,21 @@ public class WithdrawalService : IWithdrawalService
         var transaction = new Transaction()
         {
             Id = Guid.NewGuid(), // TODO: implement IdGenereator
-            InvolvedPartyId = request.InvolvedPartyId,
+            TransactionInitializedById = request.TransactionInitializedById,
             // RelatedToTransactionId
             // ReversalTransactionId
             Timestamp = timestamp,
             Type = TransactionType.Withdrawal,
             Status = TransactionStatus.Pending,
             Channel = request.TransactionChannel,
-            AccountId = account.Id,
             // Description
+            FromTransactionAccountDetails = new TransactionAccountDetails()
+            {
+                AccountId = account.Id,
+            },
             // CounterpartyAccountDetails
 
-            InitCurrencyAmount = currencyAmount,
+            FromCurrencyAmount = currencyAmount,
             // ExchangeRate
             CalculatedCurrencyAmount = currencyAmount,
 
@@ -82,40 +79,6 @@ public class WithdrawalService : IWithdrawalService
             // Batches
         };
 
-        await _transactionRepository.AddAsync(transaction); // trigger event transaction added if needed
-
-        if (await _fraudDetectionService.IsSuspiciousTransactionAsync(transaction, CancellationToken.None)) // AML calculation
-        {
-            transaction.Status = TransactionStatus.Suspended;
-            await _transactionRepository.UpdateAsync(transaction);
-
-            var result = new WithdrawalResponse()
-            {
-                TransactionStatus = transaction.Status
-            };
-            result.AddError("ALM watching you!");
-            return result;
-        }
-
-        await _transactionFeeService.AddFeesAsync(transaction, request.UserId, CancellationToken.None);
-
-        var transactionPolicyResult = await _policyService.EvaluatePoliciesAsync(transaction, request.UserId, CancellationToken.None);
-        if (transactionPolicyResult.Any(s => !s.IsSuccess))
-        {
-            transaction.Status = TransactionStatus.Voided;
-            await _transactionRepository.UpdateAsync(transaction);
-
-            var result = new WithdrawalResponse()
-            {
-                TransactionStatus = transaction.Status
-            };
-            foreach (var item in transactionPolicyResult.Where(s => s!.IsSuccess))
-                result.AddError(item.ErrorMessage);
-            return result;
-        }
-
-        await _transactionApprovalService.ApproveWithRelatedTransactionsAsync(transaction, request.UserId, CancellationToken.None);
-
-        return new WithdrawalResponse { TransactionStatus = transaction.Status, };
+        return await _transactionService.AddAsync<WithdrawalResponse>(transaction, request.UserId, CancellationToken.None);
     }
 }

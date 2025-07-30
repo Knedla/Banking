@@ -2,4 +2,7 @@
 
 namespace Banking.Domain.Repositories;
 
-public interface IAccountRepository : IGenericRepository<Account> { }
+public interface IAccountRepository : IGenericRepository<Account>
+{
+    Task<Account?> GetByAccountNumberAsync(string accountNumber);
+}

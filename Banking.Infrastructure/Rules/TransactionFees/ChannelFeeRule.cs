@@ -19,14 +19,14 @@ public class ChannelFeeRule : ITransactionFeeRule
     {
         return Task.FromResult(
             _settings.ChannelFees.ContainsKey(transaction.Channel.ToString()) && 
-            _settings.ChannelFees[transaction.Channel.ToString()].Where(s => s.CurrencyCode == transaction.InitCurrencyAmount.CurrencyCode).FirstOrDefault() != null); // refactor: double calculation: here and in GetFeeAsync
+            _settings.ChannelFees[transaction.Channel.ToString()].Where(s => s.CurrencyCode == transaction.FromCurrencyAmount.CurrencyCode).FirstOrDefault() != null); // refactor: double calculation: here and in GetFeeAsync
     }
 
     public async Task<Fee?> GetFeeAsync(Transaction transaction)
     {
         if (!await AppliesToAsync(transaction)) return null;
 
-        var channelFee = _settings.ChannelFees[transaction.Channel.ToString()].Where(s => s.CurrencyCode == transaction.InitCurrencyAmount.CurrencyCode).First();
+        var channelFee = _settings.ChannelFees[transaction.Channel.ToString()].Where(s => s.CurrencyCode == transaction.FromCurrencyAmount.CurrencyCode).First();
 
         return new Fee
         {

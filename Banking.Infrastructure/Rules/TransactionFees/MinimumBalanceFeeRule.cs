@@ -18,7 +18,7 @@ public class MinimumBalanceFeeRule : ITransactionFeeRule
 
     public Task<bool> AppliesToAsync(Transaction transaction)
     {
-        var minimumBalanceThreshold = _settings.MinimumBalanceThreshold.Where(s => s.CurrencyCode == transaction.InitCurrencyAmount.CurrencyCode).FirstOrDefault();
+        var minimumBalanceThreshold = _settings.MinimumBalanceThreshold.Where(s => s.CurrencyCode == transaction.FromCurrencyAmount.CurrencyCode).FirstOrDefault();
 
         if (minimumBalanceThreshold == null)
             return Task.FromResult(false);
@@ -29,14 +29,14 @@ public class MinimumBalanceFeeRule : ITransactionFeeRule
 
         return Task.FromResult(
             accountBalance.AvailableBalance - transaction.CalculatedCurrencyAmount.Amount < minimumBalanceThreshold.Amount &&
-            _settings.MinimumBalanceFee.Where(s => s.CurrencyCode == transaction.InitCurrencyAmount.CurrencyCode).FirstOrDefault() != null); // refactor: double calculation: here and in GetFeeAsync
+            _settings.MinimumBalanceFee.Where(s => s.CurrencyCode == transaction.FromCurrencyAmount.CurrencyCode).FirstOrDefault() != null); // refactor: double calculation: here and in GetFeeAsync
     }
 
     public async Task<Fee?> GetFeeAsync(Transaction transaction)
     {
         if (!await AppliesToAsync(transaction)) return null;
 
-        var feeConfig = _settings.MinimumBalanceFee.Where(s => s.CurrencyCode == transaction.InitCurrencyAmount.CurrencyCode).First();
+        var feeConfig = _settings.MinimumBalanceFee.Where(s => s.CurrencyCode == transaction.FromCurrencyAmount.CurrencyCode).First();
 
         return new Fee
         {

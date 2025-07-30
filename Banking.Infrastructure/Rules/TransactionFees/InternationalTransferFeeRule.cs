@@ -17,17 +17,17 @@ public class InternationalTransferFeeRule : ITransactionFeeRule
 
     public Task<bool> AppliesToAsync(Transaction transaction)
     {
-        bool isInternational = !string.IsNullOrEmpty(transaction.CounterpartyAccountDetails?.SwiftCode) || !string.IsNullOrEmpty(transaction.CounterpartyAccountDetails?.Iban); // TODO: resolve isInternational
+        bool isInternational = false; // TODO: resolve isInternational
         return Task.FromResult(
             isInternational &&
-            _settings.InternationalTransferFee.Where(s => s.CurrencyCode == transaction.InitCurrencyAmount.CurrencyCode).FirstOrDefault() != null); // refactor: double calculation: here and in GetFeeAsync
+            _settings.InternationalTransferFee.Where(s => s.CurrencyCode == transaction.FromCurrencyAmount.CurrencyCode).FirstOrDefault() != null); // refactor: double calculation: here and in GetFeeAsync
     }
 
     public async Task<Fee?> GetFeeAsync(Transaction transaction)
     {
         if (!await AppliesToAsync(transaction)) return null;
 
-        var feeConfig = _settings.InternationalTransferFee.Where(s => s.CurrencyCode == transaction.InitCurrencyAmount.CurrencyCode).First();
+        var feeConfig = _settings.InternationalTransferFee.Where(s => s.CurrencyCode == transaction.FromCurrencyAmount.CurrencyCode).First();
 
         return new Fee
         {

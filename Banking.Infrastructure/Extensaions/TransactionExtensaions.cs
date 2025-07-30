@@ -5,17 +5,17 @@ namespace Banking.Infrastructure.Extensaions
 {
     public static class TransactionExtensaions
     {
-        public static Dictionary<string, decimal> SumByCurrencyCode(this Transaction transaction)
+        public static Dictionary<string, decimal> SumByFromCurrencyCode(this Transaction transaction)
         {
             var allAmounts = new List<CurrencyAmount>
             {
-                transaction.CalculatedCurrencyAmount
+                transaction.FromCurrencyAmount
             };
 
             // Add related transactions' CurrencyAmounts
             if (transaction.RelatedTransactions != null)
                 foreach (var related in transaction.RelatedTransactions)
-                    allAmounts.Add(related.CalculatedCurrencyAmount);
+                    allAmounts.Add(related.FromCurrencyAmount);
 
             // Group by CurrencyCode and sum the Amounts
             return allAmounts

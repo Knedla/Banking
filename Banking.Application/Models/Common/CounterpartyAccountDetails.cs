@@ -1,4 +1,4 @@
-﻿namespace Banking.Domain.Entities.Transactions;
+﻿namespace Banking.Application.Models.Common;
 
 public class CounterpartyAccountDetails
 {
