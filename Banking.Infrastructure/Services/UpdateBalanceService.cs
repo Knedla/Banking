@@ -5,6 +5,7 @@ using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
 using Banking.Domain.Interfaces.StateMachine;
 using Banking.Domain.Repositories;
+using Banking.Infrastructure.Extensaions;
 
 namespace Banking.Infrastructure.Services;
 
@@ -26,40 +27,73 @@ public class UpdateBalanceService : IUpdateBalanceService
         if (transaction == null)
             throw new Exception($"Request is null.");
 
-        var account = await _accountRepository.GetByIdAsync(transaction.AccountId);
+        if (transaction.Type == TransactionType.Withdrawal)
+            await UpdateFromTransactionAccount(transaction);
+        else if (transaction.Type == TransactionType.Deposit)
+            await UpdateToFromTransactionAccount(transaction);
+        else if (transaction.Type == TransactionType.Transfer || transaction.Type == TransactionType.Fee)
+        {
+            await UpdateFromTransactionAccount(transaction);
+
+            if (transaction.ToTransactionAccountDetails == null)
+                throw new Exception($"ToTransactionAccountDetails is null.");
+
+            if (await transaction.ToTransactionAccountDetails.CheckIfTheAccountBelongsToTheSystem(_accountRepository))
+                await UpdateToFromTransactionAccount(transaction);
+        }
+    }
+
+    async Task UpdateFromTransactionAccount(Transaction transaction)
+    {
+        if (transaction.FromTransactionAccountDetails == null)
+            throw new Exception($"FromTransactionAccountDetails is null.");
+
+        var account = await transaction.FromTransactionAccountDetails.TryResolveAccount(_accountRepository);
 
         if (account == null)
-            throw new Exception($"Cannot find account.");
+            throw new Exception($"Cannot find FromTransactionAccount account.");
 
+        UpdateBalance(transaction, account, TransactionHoldingType.Outgoing);
+        await _accountRepository.UpdateAsync(account);
+    }
 
-        // if mony out - update AvailableBalance, update on transaction added / any status change 
-        // za odlazece transakcije fijeva, treba da napravim ulazne transakcije u banku
-        // TRANSFER PREBACI SA JEDNOG RACUNA NA DRUGI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    async Task UpdateToFromTransactionAccount(Transaction transaction)
+    {
+        if (transaction.ToTransactionAccountDetails == null)
+            throw new Exception($"ToTransactionAccountDetails is null.");
 
+        var account = await transaction.ToTransactionAccountDetails.TryResolveAccount(_accountRepository);
 
+        if (account == null)
+            throw new Exception($"Cannot find ToTransactionAccount account.");
 
+        UpdateBalance(transaction, account, TransactionHoldingType.Incomming);
+        await _accountRepository.UpdateAsync(account);
+    }
+
+    void UpdateBalance(Transaction transaction, Account account, TransactionHoldingType transactionHoldingType)
+    {
         var holding = GetTransactionHolding(account, transaction);
 
-        if (holding.Type == TransactionHoldingType.Incomming)
+        if (transactionHoldingType == TransactionHoldingType.Incomming)
         {
             if (_transactionStateValidator.GetCommitToBalanceStatuses().Contains(transaction.Status))
-                CommitToBalanceStatuses(account, holding);
+                CommitToBalanceStatuses(account, holding, transactionHoldingType);
         }
         else
         {
             if (_transactionStateValidator.GetDoNotApplyToAccountBalanceStatuses().Contains(transaction.Status))
-                RemoveFromAvailableBalance(account, holding);
+                RemoveFromAvailableBalance(account, holding, transactionHoldingType);
             else if (_transactionStateValidator.GetApplyToActualBalanceStatuses().Contains(transaction.Status))
-                ApplyToAvailableBalance(account, holding);
+                ApplyToAvailableBalance(account, holding, transactionHoldingType);
             else if (_transactionStateValidator.GetRollbackFromActualBalanceStatuses().Contains(transaction.Status))
-                RemoveFromAvailableBalance(account, holding);
+                RemoveFromAvailableBalance(account, holding, transactionHoldingType);
             else if (_transactionStateValidator.GetCommitToBalanceStatuses().Contains(transaction.Status))
-                CommitToBalanceStatuses(account, holding);
+                CommitToBalanceStatuses(account, holding, transactionHoldingType);
         }
-        await _accountRepository.UpdateAsync(account);
     }
 
-    void ApplyToAvailableBalance(Account account, TransactionHolding holding)
+    void ApplyToAvailableBalance(Account account, TransactionHolding holding, TransactionHoldingType transactionHoldingType)
     {
         if (holding.IsAppliedToBalance || holding.IsAppliedToAvailableBalance)
             return;
@@ -67,13 +101,13 @@ public class UpdateBalanceService : IUpdateBalanceService
         var accountBalance = GetAccountBalance(account, holding.Transaction.CalculatedCurrencyAmount.CurrencyCode);
 
         holding.IsAppliedToAvailableBalance = true;
-        if (holding.Type == TransactionHoldingType.Incomming)
+        if (transactionHoldingType == TransactionHoldingType.Incomming)
             accountBalance.AvailableBalance += holding.Transaction.CalculatedCurrencyAmount.Amount;
-        else if (holding.Type == TransactionHoldingType.Outgoing)
+        else if (transactionHoldingType == TransactionHoldingType.Outgoing)
             accountBalance.AvailableBalance -= holding.Transaction.CalculatedCurrencyAmount.Amount;
     }
 
-    void RemoveFromAvailableBalance(Account account, TransactionHolding holding)
+    void RemoveFromAvailableBalance(Account account, TransactionHolding holding, TransactionHoldingType transactionHoldingType)
     {
         if (holding.IsAppliedToBalance || !holding.IsAppliedToAvailableBalance)
             return;
@@ -81,13 +115,13 @@ public class UpdateBalanceService : IUpdateBalanceService
         var accountBalance = GetAccountBalance(account, holding.Transaction.CalculatedCurrencyAmount.CurrencyCode);
 
         holding.IsAppliedToAvailableBalance = false;
-        if (holding.Type == TransactionHoldingType.Incomming)
+        if (transactionHoldingType == TransactionHoldingType.Incomming)
             accountBalance.AvailableBalance -= holding.Transaction.CalculatedCurrencyAmount.Amount;
-        else if (holding.Type == TransactionHoldingType.Outgoing)
+        else if (transactionHoldingType == TransactionHoldingType.Outgoing)
             accountBalance.AvailableBalance += holding.Transaction.CalculatedCurrencyAmount.Amount;
     }
 
-    void CommitToBalanceStatuses(Account account, TransactionHolding holding) // should be removed from account.Holdings after Balance is updated ?
+    void CommitToBalanceStatuses(Account account, TransactionHolding holding, TransactionHoldingType transactionHoldingType) // should be removed from account.Holdings after Balance is updated ?
     {
         if (holding.IsAppliedToBalance)
             return;
@@ -95,12 +129,12 @@ public class UpdateBalanceService : IUpdateBalanceService
         var accountBalance = GetAccountBalance(account, holding.Transaction.CalculatedCurrencyAmount.CurrencyCode);
 
         if (!holding.IsAppliedToAvailableBalance)
-            ApplyToAvailableBalance(account, holding);
+            ApplyToAvailableBalance(account, holding, transactionHoldingType);
 
         holding.IsAppliedToBalance = true;
-        if (holding.Type == TransactionHoldingType.Incomming)
+        if (transactionHoldingType == TransactionHoldingType.Incomming)
             accountBalance.Balance += holding.Transaction.CalculatedCurrencyAmount.Amount;
-        else if (holding.Type == TransactionHoldingType.Outgoing)
+        else if (transactionHoldingType == TransactionHoldingType.Outgoing)
             accountBalance.Balance -= holding.Transaction.CalculatedCurrencyAmount.Amount;
     }
 
@@ -126,12 +160,6 @@ public class UpdateBalanceService : IUpdateBalanceService
             holding = new TransactionHolding()
             {
                 TransactionId = transaction.Id,
-                Type =
-                    transaction.Type == TransactionType.Withdrawal ||
-                    transaction.Type == TransactionType.Transfer ||
-                    transaction.Type == TransactionType.Fee // mock calculation
-                        ? TransactionHoldingType.Outgoing
-                        : TransactionHoldingType.Incomming,
                 IsAppliedToAvailableBalance = false,
                 IsAppliedToBalance = false,
                 Transaction = transaction

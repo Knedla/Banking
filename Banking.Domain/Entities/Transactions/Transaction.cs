@@ -27,9 +27,6 @@ public class Transaction : BaseEntity
     [Required]
     public TransactionChannel Channel { get; set; }
 
-    [Required]
-    public Guid AccountId { get; set; }
-
     public TransactionAccountDetails? FromTransactionAccountDetails { get; set; }
     public TransactionAccountDetails? ToTransactionAccountDetails { get; set; }
 
