@@ -41,6 +41,9 @@ public class UpdateBalanceService : IUpdateBalanceService
 
     async Task UpdateFromTransactionAccount(Transaction transaction)
     {
+        if (!await transaction.FromTransactionAccountDetails.CheckIfTheAccountBelongsToTheSystem(_accountRepository))
+            return;
+
         if (transaction.FromTransactionAccountDetails == null)
             throw new Exception($"FromTransactionAccountDetails is null.");
 

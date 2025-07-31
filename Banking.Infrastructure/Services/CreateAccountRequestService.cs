@@ -50,8 +50,7 @@ public class CreateAccountRequestService : ICreateAccountRequestService
 
             InvolvedPartyId = request.InvolvedPartyId,
             AccountType = request.AccountType,
-            FromCurrencyCode = request.FromCurrencyCode,
-            ToCurrencyCode = request.ToCurrencyCode,
+            CurrencyCode = request.FromCurrencyCode,
             InitialDeposit = request.InitialDeposit,
             TransactionChannel = request.TransactionChannel
         };
@@ -90,8 +89,7 @@ public class CreateAccountRequestService : ICreateAccountRequestService
                 {
                     AccountId = createAccountResponse.AccountId
                 },
-                FromCurrencyCode = workItem.FromCurrencyCode,
-                ToCurrencyCode = workItem.ToCurrencyCode,
+                CurrencyCode = workItem.CurrencyCode,
                 Amount = workItem.InitialDeposit,
                 TransactionChannel = workItem.TransactionChannel
             });

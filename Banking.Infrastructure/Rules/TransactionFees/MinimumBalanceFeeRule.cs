@@ -23,7 +23,12 @@ public class MinimumBalanceFeeRule : ITransactionFeeRule
         if (minimumBalanceThreshold == null)
             return Task.FromResult(false);
 
-        AccountBalance accountBalance = null; // TODO: get accountBalance
+        AccountBalance accountBalance = null; // TODO: resolve it for real
+        if (transaction.FromTransactionAccountDetails != null)
+            accountBalance = transaction.FromTransactionAccountDetails.Account.Balances.FirstOrDefault(s => s.CurrencyCode == transaction.FromCurrencyAmount.CurrencyCode);
+        else
+            accountBalance = transaction.ToTransactionAccountDetails.Account.Balances.FirstOrDefault(s => s.CurrencyCode == transaction.CalculatedCurrencyAmount.CurrencyCode);
+
         if (accountBalance == null)
             throw new ArgumentNullException(nameof(MinimumBalanceFeeRule));
 

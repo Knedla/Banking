@@ -3,6 +3,7 @@ using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
 using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
+using Banking.Domain.Interfaces.Polices;
 using Banking.Domain.Repositories;
 using Banking.Domain.ValueObjects;
 
@@ -12,16 +13,16 @@ public class DepositService : IDepositService
 {
     private readonly IAccountRepository _accountRepository;
     private readonly ICurrencyExchangeService _currencyExchangeService;
-    private readonly ITransactionService _transactionService;
+    private readonly IInsertTransactionService<IDepositPolicy> _insertTransactionService;
 
     public DepositService(
         IAccountRepository accountRepository,
         ICurrencyExchangeService currencyExchangeService,
-        ITransactionService transactionService)
+        IInsertTransactionService<IDepositPolicy> insertTransactionService)
     {
         _accountRepository = accountRepository;
         _currencyExchangeService = currencyExchangeService;
-        _transactionService = transactionService;
+        _insertTransactionService = insertTransactionService;
     }
 
     public async Task<DepositResponse> DepositAsync(DepositRequest request)
@@ -42,27 +43,12 @@ public class DepositService : IDepositService
         if (account == null)
             throw new Exception($"Cannot find account.");
 
+        if (!account.Balances.Any(s => s.CurrencyCode == request.CurrencyCode))
+            throw new Exception($"Currency not {request.CurrencyCode} suported.");
+
         ExchangeRate exchangeRate = null;
 
-        if (string.IsNullOrEmpty(request.ToCurrencyCode))
-            if (!account.Balances.Any(s => s.CurrencyCode == request.FromCurrencyCode))
-                // maybe throw an exception instead of falling back on PrimaryCurrencyCode
-                // -> throw new Exception($"Currency not suported."); 
-                // maybe load decision from config or ask customers what they want
-                request.ToCurrencyCode = account.PrimaryCurrencyCode;
-
-        if (!string.IsNullOrEmpty(request.ToCurrencyCode))
-        {
-            if (!account.Balances.Any(s => s.CurrencyCode == request.ToCurrencyCode))
-                throw new Exception($"Currency not suported.");
-
-            exchangeRate = await _currencyExchangeService.GetExchangeRateAsync(request.FromCurrencyCode, request.ToCurrencyCode);
-
-            if (exchangeRate == null)
-                throw new Exception($"ExchangeRate not found.");
-        }
-
-        var fromCurrencyAmount = new CurrencyAmount() { Amount = request.Amount, CurrencyCode = request.FromCurrencyCode };
+        var fromCurrencyAmount = new CurrencyAmount() { Amount = request.Amount, CurrencyCode = request.CurrencyCode };
         var timestamp = DateTime.UtcNow;
         var transaction = new Transaction()
         {
@@ -99,6 +85,6 @@ public class DepositService : IDepositService
             // Batches
         };
 
-        return await _transactionService.AddAsync<DepositResponse>(transaction, request.UserId, CancellationToken.None);
+        return await _insertTransactionService.AddAsync<DepositResponse>(transaction, request.UserId, CancellationToken.None);
     }
 }

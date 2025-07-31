@@ -13,14 +13,14 @@ public class TransactionFeeService : ITransactionFeeService
     private static readonly Guid systemUserId = Guid.NewGuid(); // TODO: centralize getting systemUserId !!!
 
     private readonly ITransactionFeePolicy _transactionFeePolicy;
-    private readonly ITransactionService _transactionService;
+    private readonly IInsertFeeTransactionService _insertFeeTransactionService;
 
     public TransactionFeeService(
         ITransactionFeePolicy transactionFeePolicy,
-        ITransactionService transactionService)
+        IInsertFeeTransactionService insertFeeTransactionService)
     {
         _transactionFeePolicy = transactionFeePolicy;
-        _transactionService = transactionService;
+        _insertFeeTransactionService = insertFeeTransactionService;
     }
 
     public async Task AddFeesAsync(Transaction transaction, Guid currentUserId, CancellationToken cancellationToken = default)
@@ -39,6 +39,8 @@ public class TransactionFeeService : ITransactionFeeService
             var amount = fee.Type == FeeType.Flat ? fee.Amount : transaction.CalculatedCurrencyAmount.Amount * fee.Amount;
             var currencyAmount = new CurrencyAmount() { Amount = amount, CurrencyCode = fee.CurrencyCode }; // expecting fee to be same currency as transaction.CalculatedCurrencyAmount.CurrencyCode -> use ICurrencyExchangeService if needed
 
+            var fromTransactionAccountDetails = (transaction.Type == TransactionType.Deposit) ? transaction.ToTransactionAccountDetails : transaction.FromTransactionAccountDetails; // TODO: resolve this for real
+
             var transactionFee = new Transaction()
             {
                 Id = Guid.NewGuid(), // TODO: implement IdGenereator
@@ -51,7 +53,7 @@ public class TransactionFeeService : ITransactionFeeService
                 Channel = TransactionChannel.System,
                 Description = fee.Code,
 
-                FromTransactionAccountDetails = transaction.FromTransactionAccountDetails,
+                FromTransactionAccountDetails = fromTransactionAccountDetails,
                 ToTransactionAccountDetails = new TransactionAccountDetails()
                 {
                     AccountNumber = fee.AccountNumber,
@@ -79,7 +81,7 @@ public class TransactionFeeService : ITransactionFeeService
                 // Batches
             };
             transaction.RelatedTransactions.Add(transactionFee);
-            await _transactionService.AddAsync<TransactionResponse>(transaction, currentUserId, cancellationToken); // should I do something with result ?
+            await _insertFeeTransactionService.AddAsync<TransactionResponse>(transactionFee, currentUserId, cancellationToken); // should I do something with result ?
         }
     }
 }

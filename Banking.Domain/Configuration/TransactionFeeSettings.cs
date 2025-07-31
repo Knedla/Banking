@@ -9,6 +9,6 @@ public class TransactionFeeSettings
     public Dictionary<string, List<FeeValue>> ChannelFees { get; set; } // TODO: refactor; prone to string errors
     public List<FeeValue> NonSameBankWithdrawal { get; set; }
     public string BankIdentifier { get; set; }
-    public string DefaultCurrency { get; set; }
+    public string DefaultCurrencyCode { get; set; }
     public string DefaultAccountNumber { get; set; }
 }

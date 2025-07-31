@@ -30,6 +30,12 @@ public static class TransactionAccountDetailsExtensions
 
     public static async Task<bool> CheckIfTheAccountBelongsToTheSystem(this TransactionAccountDetails transactionAccountDetails, IAccountRepository accountRepository)
     {
+        if (transactionAccountDetails.AccountId != null)
+        {
+            var account = await accountRepository.GetByIdAsync(transactionAccountDetails.AccountId.Value);
+            transactionAccountDetails.Account = account;
+        }
+
         return transactionAccountDetails.Account != null; // TODO: implement for real
     }
 }

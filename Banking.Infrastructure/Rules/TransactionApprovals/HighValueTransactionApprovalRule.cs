@@ -30,9 +30,9 @@ public class HighValueTransactionApprovalRule : ITransactionApprovalRule
 
     public bool RequiresApproval(Transaction transaction)
     {
-        if (string.IsNullOrWhiteSpace(transaction.FromCurrencyAmount.Currency)) return false;
+        if (string.IsNullOrWhiteSpace(transaction.FromCurrencyAmount.CurrencyCode)) return false;
 
-        if (_settings.Thresholds.TryGetValue(transaction.FromCurrencyAmount.Currency, out var threshold))
+        if (_settings.Thresholds.TryGetValue(transaction.FromCurrencyAmount.CurrencyCode, out var threshold))
         {
             return transaction.FromCurrencyAmount.Amount > threshold;
         }

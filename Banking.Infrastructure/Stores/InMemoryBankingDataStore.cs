@@ -1,6 +1,7 @@
 ﻿using Banking.Domain.Entities.Accounts;
 using Banking.Domain.Entities.Contacts;
 using Banking.Domain.Entities.Parties;
+using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Entities.WorkItems;
 using Banking.Domain.Enumerations;
 using Banking.Domain.Interfaces.Entities;
@@ -13,12 +14,16 @@ public class InMemoryBankingDataStore : IBankingDataStore // TODO: change with n
     private readonly Dictionary<Type, object> _dataSets;
 
     private List<WorkItem> _workItem;
+    private List<InvolvedParty> _involvedParties;
     private List<Individual> _individuals;
     private List<Account> _accounts;
+    private List<Transaction> _transactions;
 
     public List<WorkItem> WorkItems => _workItem;
+    public List<InvolvedParty> InvolvedParties => _involvedParties;
     public List<Individual> Individuals => _individuals;
     public List<Account> Accounts => _accounts;
+    public List<Transaction> Transactions => _transactions;
 
     public InMemoryBankingDataStore()
     {
@@ -28,16 +33,22 @@ public class InMemoryBankingDataStore : IBankingDataStore // TODO: change with n
         _dataSets = new()
         {
             { typeof(WorkItem), _workItem },
+            { typeof(InvolvedParty), _involvedParties },
             { typeof(Individual), _individuals },
-            { typeof(Account), _accounts }
+            { typeof(Account), _accounts },
+            { typeof(Transaction), _transactions }
         };
+
+        _involvedParties.AddRange(_individuals); // helper
     }
 
     void InitLists()
     {
         _workItem = new List<WorkItem>();
+        _involvedParties = new List<InvolvedParty>();
         _individuals = new List<Individual>();
         _accounts = new List<Account>();
+        _transactions = new List<Transaction>();
     }
 
     void InitData()
@@ -182,11 +193,11 @@ public class InMemoryBankingDataStore : IBankingDataStore // TODO: change with n
     }
 
     // TODO: implement
-    public Task BeginTransactionAsync() => throw new NotImplementedException();
-    public Task CommitAsync() => throw new NotImplementedException();
-    public Task RollbackAsync() => throw new NotImplementedException();
-    public Task SaveAsync() => throw new NotImplementedException();
-    public Task CreateSavepointAsync() => throw new NotImplementedException();
-    public Task RollbackToSavepointAsync() => throw new NotImplementedException();
-    public Task ReleaseSavepointAsync() => throw new NotImplementedException();
+    public Task BeginTransactionAsync() => Task.CompletedTask; // => throw new NotImplementedException();
+    public Task CommitAsync() => Task.CompletedTask; // => throw new NotImplementedException();
+    public Task RollbackAsync() => Task.CompletedTask; // => throw new NotImplementedException();
+    public Task SaveAsync() => Task.CompletedTask; // => throw new NotImplementedException();
+    public Task CreateSavepointAsync() => Task.CompletedTask; //  => throw new NotImplementedException();
+    public Task RollbackToSavepointAsync() => Task.CompletedTask; // => throw new NotImplementedException();
+    public Task ReleaseSavepointAsync() => Task.CompletedTask; // => throw new NotImplementedException();
 }

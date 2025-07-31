@@ -3,6 +3,7 @@ using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
 using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
+using Banking.Domain.Interfaces.Polices;
 using Banking.Domain.Repositories;
 using Banking.Domain.ValueObjects;
 using Banking.Infrastructure.Extensaions;
@@ -13,16 +14,16 @@ public class TransferService : ITransferService
 {
     private readonly IAccountRepository _accountRepository;
     private readonly ICurrencyExchangeService _currencyExchangeService;
-    private readonly ITransactionService _transactionService;
+    private readonly IInsertTransactionService<ITransferPolicy> _insertTransactionService;
 
     public TransferService(
         IAccountRepository accountRepository,
         ICurrencyExchangeService currencyExchangeService,
-        ITransactionService transactionService)
+        IInsertTransactionService<ITransferPolicy> insertTransactionService)
     {
         _accountRepository = accountRepository;
         _currencyExchangeService = currencyExchangeService;
-        _transactionService = transactionService;
+        _insertTransactionService = insertTransactionService;
     }
 
     public async Task<TransferResponse> TransferAsync(TransferRequest request)
@@ -108,6 +109,6 @@ public class TransferService : ITransferService
             // Batches
         };
 
-        return await _transactionService.AddAsync<TransferResponse>(transaction, request.UserId, CancellationToken.None);
+        return await _insertTransactionService.AddAsync<TransferResponse>(transaction, request.UserId, CancellationToken.None);
     }
 }

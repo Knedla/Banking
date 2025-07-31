@@ -10,6 +10,6 @@ public class DepositRequest : BaseRequest
     public TransactionAccountDetails TransactionAccountDetails { get; set; }
     
     public decimal Amount { get; set; }
-    public string FromCurrencyCode { get; set; }
-    public string? ToCurrencyCode { get; set; }
+    public string CurrencyCode { get; set; }
+    //public string? ToCurrencyCode { get; set; }
 }

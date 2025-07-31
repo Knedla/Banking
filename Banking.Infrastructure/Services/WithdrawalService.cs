@@ -3,6 +3,7 @@ using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
 using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
+using Banking.Domain.Interfaces.Polices;
 using Banking.Domain.Repositories;
 using Banking.Domain.ValueObjects;
 
@@ -11,14 +12,14 @@ namespace Banking.Infrastructure.Services;
 public class WithdrawalService : IWithdrawalService
 {
     private readonly IAccountRepository _accountRepository;
-    private readonly ITransactionService _transactionService;
+    private readonly IInsertTransactionService<IWithdrawalPolicy> _insertTransactionService;
 
     public WithdrawalService(
         IAccountRepository accountRepository,
-        ITransactionService transactionService)
+        IInsertTransactionService<IWithdrawalPolicy> insertTransactionService)
     {
         _accountRepository = accountRepository;
-        _transactionService = transactionService;
+        _insertTransactionService = insertTransactionService;
     }
 
     public async Task<WithdrawalResponse> WithdrawAsync(WithdrawalRequest request)
@@ -79,6 +80,6 @@ public class WithdrawalService : IWithdrawalService
             // Batches
         };
 
-        return await _transactionService.AddAsync<WithdrawalResponse>(transaction, request.UserId, CancellationToken.None);
+        return await _insertTransactionService.AddAsync<WithdrawalResponse>(transaction, request.UserId, CancellationToken.None);
     }
 }

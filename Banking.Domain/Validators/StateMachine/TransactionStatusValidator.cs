@@ -9,7 +9,7 @@ public class TransactionStatusValidator : ITransactionStateValidator
     {
         [TransactionStatus.Draft] = [TransactionStatus.Pending, TransactionStatus.Scheduled, TransactionStatus.Cancelled, TransactionStatus.Voided],
         [TransactionStatus.Pending] = [TransactionStatus.Approved, TransactionStatus.Cancelled, TransactionStatus.Rejected, TransactionStatus.Failed],
-        [TransactionStatus.Approved] = [TransactionStatus.Processing, TransactionStatus.Suspended, TransactionStatus.Cancelled],
+        [TransactionStatus.Approved] = [TransactionStatus.Processing, TransactionStatus.Suspended, TransactionStatus.Cancelled, TransactionStatus.Completed], // completed status added here for convenience
         [TransactionStatus.Processing] = [TransactionStatus.Posted, TransactionStatus.Failed, TransactionStatus.Suspended],
         [TransactionStatus.Posted] = [TransactionStatus.Completed, TransactionStatus.Reversed],
         [TransactionStatus.Completed] = Array.Empty<TransactionStatus>(),

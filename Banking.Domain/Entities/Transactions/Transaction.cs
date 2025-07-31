@@ -1,5 +1,4 @@
-﻿using Banking.Domain.Entities.Accounts;
-using Banking.Domain.Enumerations;
+﻿using Banking.Domain.Enumerations;
 using Banking.Domain.ValueObjects;
 using System.ComponentModel.DataAnnotations;
 
@@ -59,5 +58,4 @@ public class Transaction : BaseEntity
     // References
     public Transaction? RelatedToTransaction { get; set; }
     public Transaction? ReversalTransaction { get; set; }
-    public Account Account { get; set; }
 }

@@ -18,6 +18,9 @@ public static class EventsRegistration
         services.AddScoped<IDomainEventHandler<TransactionApprovedEvent>, TransactionWithRelatedTransactionsApprovedHandler>();
         services.AddScoped<IDomainEventHandler<TransactionExecutedEvent>, TransactionExecutedHandler>();
         services.AddScoped<IDomainEventHandler<CreateAccountRequestAddedEvent>, CreateAccountRequestAddedHandler>();
+        services.AddScoped<IDomainEventHandler <TransactionApprovalRequestEvent>, TransactionApprovalRequestHandler>();
+        services.AddScoped<IDomainEventHandler<TransactionFeeRequestEvent>, TransactionFeeRequestHandler>();
+        
         //services.AddScoped(typeof(IDomainEventHandler<>), typeof(WorkItemAddedHandler<>)); // TODO: check why is not working ...
 
         services.AddSingleton<IExpressionEvaluator, ExpressionEvaluator>();

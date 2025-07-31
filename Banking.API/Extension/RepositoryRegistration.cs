@@ -17,6 +17,7 @@ public static class RepositoryRegistration
 
         services.AddSingleton<IBankingDataStore, InMemoryBankingDataStore>();
         services.AddScoped<IUnitOfWork, InMemoryUnitOfWork>();
+        services.AddScoped<IInvolvedPartyRepository, InvolvedPartyRepository>();
 
         return services;
     }

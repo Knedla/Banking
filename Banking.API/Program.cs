@@ -86,9 +86,8 @@ var depositRequest = new DepositRequest()
         AccountId = new Guid("f6d6cde9-3e0e-4a7a-9081-efb972f9d0b2")
     },
     TransactionInitializedById = new Guid("9ba7d2a3-6a9e-4e78-93a0-42f3d5ec8ef6"),
-    FromCurrencyCode = "USD",
-    ToCurrencyCode = "EUR",
-    Amount = 500,
+    CurrencyCode = "EUR",
+    Amount = 299,
     TransactionChannel = TransactionChannel.ATM
 };
 

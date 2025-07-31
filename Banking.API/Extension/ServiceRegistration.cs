@@ -25,7 +25,9 @@ public static class ServiceRegistration
         services.AddScoped(typeof(IPolicyService<>), typeof(PolicyService<>));
         services.AddScoped<IUpdateBalanceService, UpdateBalanceService>();
         services.AddScoped<ITransactionService, TransactionService>();
-        
+        services.AddScoped<IInsertFeeTransactionService, InsertFeeTransactionService>();
+        services.AddScoped(typeof(IInsertTransactionService<>), typeof(InsertTransactionService<>));
+
         return services;
     }
 }
