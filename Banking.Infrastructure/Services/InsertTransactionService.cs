@@ -16,7 +16,7 @@ public class InsertTransactionService<T> : IInsertTransactionService<T> where T 
     private readonly ITransactionRepository _transactionRepository;
     private readonly IUpdateBalanceService _updateBalanceService;
     private readonly IFraudDetectionService _fraudDetectionService;
-    private readonly IPolicyService<T> _policyService;
+    private readonly ITransactionPolicyService<T> _transactionPolicyService;
     private readonly IDomainEventDispatcher _domainEventDispatcher;
 
     public InsertTransactionService(
@@ -24,14 +24,14 @@ public class InsertTransactionService<T> : IInsertTransactionService<T> where T 
         ITransactionRepository transactionRepository,
         IUpdateBalanceService updateBalanceService,
         IFraudDetectionService fraudDetectionService,
-        IPolicyService<T> policyService,
+        ITransactionPolicyService<T> transactionPolicyService,
         IDomainEventDispatcher domainEventDispatcher)
     {
         _transactionService = transactionService;
         _transactionRepository = transactionRepository;
         _updateBalanceService = updateBalanceService;
         _fraudDetectionService = fraudDetectionService;
-        _policyService = policyService;
+        _transactionPolicyService = transactionPolicyService;
         _domainEventDispatcher = domainEventDispatcher;
     }
 
@@ -46,18 +46,20 @@ public class InsertTransactionService<T> : IInsertTransactionService<T> where T 
         await _transactionRepository.AddAsync(transaction); // trigger event transaction added if needed
         await _updateBalanceService.UpdateBalanceAsync(transaction);
 
-        var amlResult = await _fraudDetectionService.IsSuspiciousTransactionAsync(transaction, CancellationToken.None); // AML calculation
-
-        if (amlResult)
+        // AML calculation
+        // can be treated as a policy
+        // in that case, the system would have to be slightly refactored
+        // because fraud would transfer the transaction to a different status compared to the policy for insufficient funds on the account
+        if (await _fraudDetectionService.IsSuspiciousTransactionAsync(transaction, CancellationToken.None)) 
         {
             await _transactionService.ChangeStatusAsync(transaction, TransactionStatus.Suspended, currentUserId, cancellationToken);
 
-            var result = new U
+            var response = new U
             {
                 TransactionStatus = transaction.Status
             };
-            result.AddError("ALM watching you!");
-            return result;
+            response.AddError("ALM watching you!");
+            return response;
         }
 
         await _domainEventDispatcher.RaiseAsync(new TransactionFeeRequestEvent(
@@ -66,18 +68,18 @@ public class InsertTransactionService<T> : IInsertTransactionService<T> where T 
                 transaction.TransactionInitializedById ?? Guid.Empty // InvolvedPartyId prop should be removed from IDomainEvent, eventually
             ));
 
-        var transactionPolicyResult = await _policyService.EvaluatePoliciesAsync(transaction, currentUserId, CancellationToken.None);
+        var transactionPolicyResult = await _transactionPolicyService.EvaluatePoliciesAsync(transaction, currentUserId, CancellationToken.None);
         if (transactionPolicyResult.Any(s => !s.IsSuccess))
         {
             await _transactionService.ChangeStatusAsync(transaction, TransactionStatus.Voided, currentUserId, cancellationToken);
 
-            var result = new U
+            var response = new U
             {
                 TransactionStatus = transaction.Status
             };
             foreach (var item in transactionPolicyResult.Where(s => s!.IsSuccess))
-                result.AddError(item.ErrorMessage);
-            return result;
+                response.AddError(item.ErrorMessage);
+            return response;
         }
 
         await _domainEventDispatcher.RaiseAsync(new TransactionApprovalRequestEvent(

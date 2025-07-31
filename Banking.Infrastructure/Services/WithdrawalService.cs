@@ -13,13 +13,16 @@ public class WithdrawalService : IWithdrawalService
 {
     private readonly IAccountRepository _accountRepository;
     private readonly IInsertTransactionService<IWithdrawalPolicy> _insertTransactionService;
+    private readonly IAuthorizationPolicyService<IInitializeTransactionAuthorizationPolicy> _authorizationPolicyService;
 
     public WithdrawalService(
         IAccountRepository accountRepository,
-        IInsertTransactionService<IWithdrawalPolicy> insertTransactionService)
+        IInsertTransactionService<IWithdrawalPolicy> insertTransactionService,
+        IAuthorizationPolicyService<IInitializeTransactionAuthorizationPolicy> authorizationPolicyService)
     {
         _accountRepository = accountRepository;
         _insertTransactionService = insertTransactionService;
+        _authorizationPolicyService = authorizationPolicyService;
     }
 
     public async Task<WithdrawalResponse> WithdrawAsync(WithdrawalRequest request)
@@ -42,6 +45,18 @@ public class WithdrawalService : IWithdrawalService
 
         if (!account.Balances.Any(s => s.CurrencyCode == request.CurrencyCode)) // it should never happen
             throw new Exception($"Currency not suported.");
+
+        if (request.TransactionInitializedById != null)
+        {
+            var authorizationPolicyResult = await _authorizationPolicyService.EvaluatePoliciesAsync(request.TransactionInitializedById.Value, accountId);
+            if (authorizationPolicyResult.Any(s => !s.IsSuccess))
+            {
+                var response = new WithdrawalResponse();
+                foreach (var item in authorizationPolicyResult.Where(s => s!.IsSuccess))
+                    response.AddError(item.ErrorMessage);
+                return response;
+            }
+        }
 
         var currencyAmount = new CurrencyAmount() { Amount = request.Amount, CurrencyCode = request.CurrencyCode };
         var timestamp = DateTime.UtcNow;

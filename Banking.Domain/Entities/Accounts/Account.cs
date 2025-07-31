@@ -29,6 +29,9 @@ public class Account : BaseEntity
 
     public Overdraft? Overdraft { get; set; }
 
+    [Required]
+    public bool IsFrozen { get; set; } // TODO: include in logic
+
     // Common navigation properties
     [Required] 
     public ICollection<AccountBalance> Balances { get; set; } // constraints: there must be an AccountBalance whose CurrencyCode == PrimaryCurrencyCode

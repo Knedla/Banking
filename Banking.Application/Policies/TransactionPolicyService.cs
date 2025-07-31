@@ -5,11 +5,11 @@ using Banking.Domain.Policies;
 
 namespace Banking.Application.Policies;
 
-public class PolicyService<TPolicy> : IPolicyService<TPolicy> where TPolicy : ITransactionPolicy
+public class TransactionPolicyService<TPolicy> : ITransactionPolicyService<TPolicy> where TPolicy : ITransactionPolicy
 {
     private readonly IEnumerable<TPolicy> _policies;
 
-    public PolicyService(IEnumerable<TPolicy> policies)
+    public TransactionPolicyService(IEnumerable<TPolicy> policies)
     {
         _policies = policies;
     }

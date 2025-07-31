@@ -37,6 +37,8 @@ public static class PolicyRegistration
         services.AddScoped<ITransactionFeeRule, WithdrawalFeeRule>();
 
         services.AddScoped<IWithdrawalPolicy, MinimumBalanceWithdrawalPolicy>();
+        services.AddScoped<IViewBalanceAuthorizationPolicy, ViewBalanceAuthorizationPolicy>();
+        services.AddScoped<IInitializeTransactionAuthorizationPolicy, InitializeTransactionAuthorizationPolicy>();
 
         // Policies
         services.Scan(scan => scan

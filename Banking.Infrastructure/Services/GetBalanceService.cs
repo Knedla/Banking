@@ -1,6 +1,7 @@
 ﻿using Banking.Application.Interfaces.Services;
 using Banking.Application.Models.Requests;
 using Banking.Application.Models.Responses;
+using Banking.Domain.Interfaces.Polices;
 using Banking.Domain.Repositories;
 
 namespace Banking.Infrastructure.Services;
@@ -8,10 +9,14 @@ namespace Banking.Infrastructure.Services;
 public class GetBalanceService : IGetBalanceService
 {
     private readonly IAccountRepository _accountRepository;
+    private readonly IAuthorizationPolicyService<IViewBalanceAuthorizationPolicy> _authorizationPolicyService;
 
-    public GetBalanceService(IAccountRepository accountRepository)
+    public GetBalanceService(
+        IAccountRepository accountRepository, 
+        IAuthorizationPolicyService<IViewBalanceAuthorizationPolicy> authorizationPolicyService)
     {
         _accountRepository = accountRepository;
+        _authorizationPolicyService = authorizationPolicyService;
     }
 
     public async Task<AccountBalanceResponse> GetBalanceAsync(AccountBalanceRequest request)
@@ -24,11 +29,14 @@ public class GetBalanceService : IGetBalanceService
         if (account == null)
             throw new Exception($"Cannot find account.");
 
-        // TODO:
-        // add mandates to accounts
-        // add rules for mandates
-        // check if the user has mandate for the account
-        // check if the user has the rule/right to view the balance
+        var authorizationPolicyResult = await _authorizationPolicyService.EvaluatePoliciesAsync(request.InvolvedPartyId, request.AccountId);
+        if (authorizationPolicyResult.Any(s => !s.IsSuccess))
+        {
+            var response = new AccountBalanceResponse();
+            foreach (var item in authorizationPolicyResult.Where(s => s!.IsSuccess))
+                response.AddError(item.ErrorMessage);
+            return response;
+        }
 
         if (account.InvolvedPartyId != request.InvolvedPartyId)
         {

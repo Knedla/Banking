@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Banking.Domain.Entities.WorkItems;
 
-public abstract class WorkItem : BaseEntity, IRuleEntity
+public abstract class WorkItem : BaseEntity, IRuleEntity // not used ...
 {
     [Required]
     public WorkItemStatus Status { get; set; }

@@ -15,15 +15,18 @@ public class TransferService : ITransferService
     private readonly IAccountRepository _accountRepository;
     private readonly ICurrencyExchangeService _currencyExchangeService;
     private readonly IInsertTransactionService<ITransferPolicy> _insertTransactionService;
+    private readonly IAuthorizationPolicyService<IInitializeTransactionAuthorizationPolicy> _authorizationPolicyService;
 
     public TransferService(
         IAccountRepository accountRepository,
         ICurrencyExchangeService currencyExchangeService,
-        IInsertTransactionService<ITransferPolicy> insertTransactionService)
+        IInsertTransactionService<ITransferPolicy> insertTransactionService,
+        IAuthorizationPolicyService<IInitializeTransactionAuthorizationPolicy> authorizationPolicyService)
     {
         _accountRepository = accountRepository;
         _currencyExchangeService = currencyExchangeService;
         _insertTransactionService = insertTransactionService;
+        _authorizationPolicyService = authorizationPolicyService;
     }
 
     public async Task<TransferResponse> TransferAsync(TransferRequest request)
@@ -38,6 +41,18 @@ public class TransferService : ITransferService
             throw new Exception($"Cannot resolve FromAccount.");
         else if (!fromAccount.Balances.Any(s => s.CurrencyCode == request.FromCurrencyCode))
             throw new Exception($"From currency {request.FromCurrencyCode} not suported.");
+
+        if (request.TransactionInitializedById != null)
+        {
+            var authorizationPolicyResult = await _authorizationPolicyService.EvaluatePoliciesAsync(request.TransactionInitializedById.Value, fromAccount.Id);
+            if (authorizationPolicyResult.Any(s => !s.IsSuccess))
+            {
+                var response = new TransferResponse();
+                foreach (var item in authorizationPolicyResult.Where(s => s!.IsSuccess))
+                    response.AddError(item.ErrorMessage);
+                return response;
+            }
+        }
 
         ExchangeRate exchangeRate = null;
 
