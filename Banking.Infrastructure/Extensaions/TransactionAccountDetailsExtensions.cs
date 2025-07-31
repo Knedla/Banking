@@ -8,7 +8,7 @@ public static class TransactionAccountDetailsExtensions
 {
     public static async Task<Account> TryResolveAccount(this Application.Models.Common.TransactionAccountDetails transactionAccountDetails, IAccountRepository accountRepository)
     {
-        if (transactionAccountDetails?.AccountId == Guid.Empty)
+        if (transactionAccountDetails?.AccountId != Guid.Empty)
             return await accountRepository.GetByIdAsync(transactionAccountDetails.AccountId.Value);
         else if (!string.IsNullOrEmpty(transactionAccountDetails.AccountNumber))
             return await accountRepository.GetByAccountNumberAsync(transactionAccountDetails.AccountNumber);
@@ -20,7 +20,7 @@ public static class TransactionAccountDetailsExtensions
     {
         if (transactionAccountDetails.Account != null)
             return transactionAccountDetails.Account;
-        if (transactionAccountDetails?.AccountId == Guid.Empty)
+        if (transactionAccountDetails?.AccountId != Guid.Empty)
             return await accountRepository.GetByIdAsync(transactionAccountDetails.AccountId.Value);
         else if (!string.IsNullOrEmpty(transactionAccountDetails.AccountNumber))
             return await accountRepository.GetByAccountNumberAsync(transactionAccountDetails.AccountNumber);

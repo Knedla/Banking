@@ -87,7 +87,7 @@ var depositRequest = new DepositRequest()
     },
     TransactionInitializedById = new Guid("9ba7d2a3-6a9e-4e78-93a0-42f3d5ec8ef6"),
     CurrencyCode = "EUR",
-    Amount = 299,
+    Amount = 200,
     TransactionChannel = TransactionChannel.ATM
 };
 
@@ -113,3 +113,32 @@ var withdrawalRequest = new WithdrawalRequest()
 
 WithdrawalController withdrawalController = new WithdrawalController();
 withdrawalController.Withdraw(withdrawalCommandHandler, withdrawalRequest, CancellationToken.None);
+
+
+// -- Transfer --
+var transferCommandHandler = transactionCommandHandlerFactory.Create<TransferRequest, TransferResponse>();
+
+var transferRequest = new TransferRequest()
+{
+    UserId = Guid.NewGuid(),
+    TransactionInitializedById = new Guid("9ba7d2a3-6a9e-4e78-93a0-42f3d5ec8ef6"),
+    FromTransactionAccountDetails = new TransactionAccountDetails()
+    {
+        AccountId = new Guid("f6d6cde9-3e0e-4a7a-9081-efb972f9d0b2")
+    },
+    CounterpartyAccountDetails = new CounterpartyAccountDetails()
+    {
+        PaymentReference = "something"
+    },
+    ToTransactionAccountDetails = new TransactionAccountDetails()
+    {
+        AccountId = new Guid("b67dc798-e95f-464a-bbd1-f56b57d60a5e")
+    },
+    
+    FromCurrencyCode = "EUR",
+    Amount = 1000,
+    TransactionChannel = TransactionChannel.MobileApp
+};
+
+TransferController transferController = new TransferController();
+transferController.Transfer(transferCommandHandler, transferRequest, CancellationToken.None);
