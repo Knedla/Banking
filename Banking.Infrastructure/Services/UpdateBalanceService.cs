@@ -5,6 +5,7 @@ using Banking.Domain.Entities.Transactions;
 using Banking.Domain.Enumerations;
 using Banking.Domain.Interfaces.StateMachine;
 using Banking.Domain.Repositories;
+using Banking.Domain.ValueObjects;
 using Banking.Infrastructure.Extensaions;
 
 namespace Banking.Infrastructure.Services;
@@ -27,20 +28,15 @@ public class UpdateBalanceService : IUpdateBalanceService
         if (transaction == null)
             throw new Exception($"Request is null.");
 
-        if (transaction.Type == TransactionType.Withdrawal)
+        if (transaction.Type == TransactionType.Withdrawal || 
+            transaction.Type == TransactionType.Transfer || 
+            transaction.Type == TransactionType.Fee)
             await UpdateFromTransactionAccount(transaction);
-        else if (transaction.Type == TransactionType.Deposit)
+        
+        if (transaction.Type == TransactionType.Deposit || 
+            transaction.Type == TransactionType.Transfer || 
+            transaction.Type == TransactionType.Fee)
             await UpdateToFromTransactionAccount(transaction);
-        else if (transaction.Type == TransactionType.Transfer || transaction.Type == TransactionType.Fee)
-        {
-            await UpdateFromTransactionAccount(transaction);
-
-            if (transaction.ToTransactionAccountDetails == null)
-                throw new Exception($"ToTransactionAccountDetails is null.");
-
-            if (await transaction.ToTransactionAccountDetails.CheckIfTheAccountBelongsToTheSystem(_accountRepository))
-                await UpdateToFromTransactionAccount(transaction);
-        }
     }
 
     async Task UpdateFromTransactionAccount(Transaction transaction)
@@ -53,12 +49,24 @@ public class UpdateBalanceService : IUpdateBalanceService
         if (account == null)
             throw new Exception($"Cannot find FromTransactionAccount account.");
 
-        UpdateBalance(transaction, account, TransactionHoldingType.Outgoing);
+        var holding = GetTransactionHolding(account, transaction);
+
+        if (_transactionStateValidator.GetDoNotApplyToAccountBalanceStatuses().Contains(transaction.Status) ||
+            _transactionStateValidator.GetRollbackFromActualBalanceStatuses().Contains(transaction.Status))
+            RemoveFromAvailableBalance(transaction, account, holding.OutgoingApplication, TransactionHoldingType.Outgoing);
+        else if (_transactionStateValidator.GetApplyToActualBalanceStatuses().Contains(transaction.Status))
+            ApplyToAvailableBalance(transaction, account, holding.OutgoingApplication, TransactionHoldingType.Outgoing);
+        else if (_transactionStateValidator.GetCommitToBalanceStatuses().Contains(transaction.Status))
+            CommitToBalanceStatuses(transaction, account, holding.OutgoingApplication, TransactionHoldingType.Outgoing);
+        
         await _accountRepository.UpdateAsync(account);
     }
 
     async Task UpdateToFromTransactionAccount(Transaction transaction)
     {
+        if (!await transaction.ToTransactionAccountDetails.CheckIfTheAccountBelongsToTheSystem(_accountRepository))
+            return;
+
         if (transaction.ToTransactionAccountDetails == null)
             throw new Exception($"ToTransactionAccountDetails is null.");
 
@@ -67,75 +75,78 @@ public class UpdateBalanceService : IUpdateBalanceService
         if (account == null)
             throw new Exception($"Cannot find ToTransactionAccount account.");
 
-        UpdateBalance(transaction, account, TransactionHoldingType.Incomming);
+        var holding = GetTransactionHolding(account, transaction);
+
+        if (_transactionStateValidator.GetCommitToBalanceStatuses().Contains(transaction.Status))
+            CommitToBalanceStatuses(transaction, account, holding.IncommingApplication, TransactionHoldingType.Incomming);
+        
         await _accountRepository.UpdateAsync(account);
     }
 
-    void UpdateBalance(Transaction transaction, Account account, TransactionHoldingType transactionHoldingType)
+    void ApplyToAvailableBalance(Transaction transaction, Account account, TransactionHoldingApplication transactionHoldingApplication, TransactionHoldingType transactionHoldingType)
     {
-        var holding = GetTransactionHolding(account, transaction);
+        if (transactionHoldingApplication.IsAppliedToBalance || 
+            transactionHoldingApplication.IsAppliedToAvailableBalance)
+            return;
 
+        transactionHoldingApplication.IsAppliedToAvailableBalance = true;
         if (transactionHoldingType == TransactionHoldingType.Incomming)
-        {
-            if (_transactionStateValidator.GetCommitToBalanceStatuses().Contains(transaction.Status))
-                CommitToBalanceStatuses(account, holding, transactionHoldingType);
-        }
+            AddToAvailableBalance(account, transaction.CalculatedCurrencyAmount);
         else
-        {
-            if (_transactionStateValidator.GetDoNotApplyToAccountBalanceStatuses().Contains(transaction.Status))
-                RemoveFromAvailableBalance(account, holding, transactionHoldingType);
-            else if (_transactionStateValidator.GetApplyToActualBalanceStatuses().Contains(transaction.Status))
-                ApplyToAvailableBalance(account, holding, transactionHoldingType);
-            else if (_transactionStateValidator.GetRollbackFromActualBalanceStatuses().Contains(transaction.Status))
-                RemoveFromAvailableBalance(account, holding, transactionHoldingType);
-            else if (_transactionStateValidator.GetCommitToBalanceStatuses().Contains(transaction.Status))
-                CommitToBalanceStatuses(account, holding, transactionHoldingType);
-        }
+            RemoveFromAvailableBalance(account, transaction.FromCurrencyAmount);
     }
 
-    void ApplyToAvailableBalance(Account account, TransactionHolding holding, TransactionHoldingType transactionHoldingType)
+    void RemoveFromAvailableBalance(Transaction transaction, Account account, TransactionHoldingApplication transactionHoldingApplication, TransactionHoldingType transactionHoldingType)
     {
-        if (holding.IsAppliedToBalance || holding.IsAppliedToAvailableBalance)
+        if (transactionHoldingApplication.IsAppliedToBalance || 
+            !transactionHoldingApplication.IsAppliedToAvailableBalance)
             return;
 
-        var accountBalance = GetAccountBalance(account, holding.Transaction.CalculatedCurrencyAmount.CurrencyCode);
-
-        holding.IsAppliedToAvailableBalance = true;
+        transactionHoldingApplication.IsAppliedToAvailableBalance = false;
         if (transactionHoldingType == TransactionHoldingType.Incomming)
-            accountBalance.AvailableBalance += holding.Transaction.CalculatedCurrencyAmount.Amount;
-        else if (transactionHoldingType == TransactionHoldingType.Outgoing)
-            accountBalance.AvailableBalance -= holding.Transaction.CalculatedCurrencyAmount.Amount;
+            RemoveFromAvailableBalance(account, transaction.CalculatedCurrencyAmount);
+        else
+            AddToAvailableBalance(account, transaction.FromCurrencyAmount);
     }
 
-    void RemoveFromAvailableBalance(Account account, TransactionHolding holding, TransactionHoldingType transactionHoldingType)
+    // should be removed from account.Holdings after Balance is updated or set holding as Completed?
+    void CommitToBalanceStatuses(Transaction transaction, Account account, TransactionHoldingApplication transactionHoldingApplication, TransactionHoldingType transactionHoldingType)
     {
-        if (holding.IsAppliedToBalance || !holding.IsAppliedToAvailableBalance)
+        if (transactionHoldingApplication.IsAppliedToBalance)
             return;
 
-        var accountBalance = GetAccountBalance(account, holding.Transaction.CalculatedCurrencyAmount.CurrencyCode);
+        if (!transactionHoldingApplication.IsAppliedToAvailableBalance)
+            ApplyToAvailableBalance(transaction, account, transactionHoldingApplication, transactionHoldingType);
 
-        holding.IsAppliedToAvailableBalance = false;
+        transactionHoldingApplication.IsAppliedToBalance = true;
         if (transactionHoldingType == TransactionHoldingType.Incomming)
-            accountBalance.AvailableBalance -= holding.Transaction.CalculatedCurrencyAmount.Amount;
-        else if (transactionHoldingType == TransactionHoldingType.Outgoing)
-            accountBalance.AvailableBalance += holding.Transaction.CalculatedCurrencyAmount.Amount;
+            AddToBalance(account, transaction.CalculatedCurrencyAmount);
+        else
+            RemoveFromBalance(account, transaction.FromCurrencyAmount);
     }
 
-    void CommitToBalanceStatuses(Account account, TransactionHolding holding, TransactionHoldingType transactionHoldingType) // should be removed from account.Holdings after Balance is updated ?
+    void AddToAvailableBalance(Account account, CurrencyAmount currencyAmount)
     {
-        if (holding.IsAppliedToBalance)
-            return;
+        var accountBalance = GetAccountBalance(account, currencyAmount.CurrencyCode);
+        accountBalance.AvailableBalance += currencyAmount.Amount;
+    }
 
-        var accountBalance = GetAccountBalance(account, holding.Transaction.CalculatedCurrencyAmount.CurrencyCode);
+    void RemoveFromAvailableBalance(Account account, CurrencyAmount currencyAmount)
+    {
+        var accountBalance = GetAccountBalance(account, currencyAmount.CurrencyCode);
+        accountBalance.AvailableBalance -= currencyAmount.Amount;
+    }
 
-        if (!holding.IsAppliedToAvailableBalance)
-            ApplyToAvailableBalance(account, holding, transactionHoldingType);
+    void AddToBalance(Account account, CurrencyAmount currencyAmount)
+    {
+        var accountBalance = GetAccountBalance(account, currencyAmount.CurrencyCode);
+        accountBalance.Balance += currencyAmount.Amount;
+    }
 
-        holding.IsAppliedToBalance = true;
-        if (transactionHoldingType == TransactionHoldingType.Incomming)
-            accountBalance.Balance += holding.Transaction.CalculatedCurrencyAmount.Amount;
-        else if (transactionHoldingType == TransactionHoldingType.Outgoing)
-            accountBalance.Balance -= holding.Transaction.CalculatedCurrencyAmount.Amount;
+    void RemoveFromBalance(Account account, CurrencyAmount currencyAmount)
+    {
+        var accountBalance = GetAccountBalance(account, currencyAmount.CurrencyCode);
+        accountBalance.Balance -= currencyAmount.Amount;
     }
 
     AccountBalance GetAccountBalance(Account account, string currencyCode)
@@ -157,11 +168,19 @@ public class UpdateBalanceService : IUpdateBalanceService
 
         if (holding == null)
         {
-            holding = new TransactionHolding()
+            holding = new TransactionHolding() // TODO: implement a builder to instanciate IncommingApplication and OutgoingApplication depending on the TransactionType
             {
                 TransactionId = transaction.Id,
-                IsAppliedToAvailableBalance = false,
-                IsAppliedToBalance = false,
+                IncommingApplication = new TransactionHoldingApplication()
+                {
+                    IsAppliedToAvailableBalance = false,
+                    IsAppliedToBalance = false,
+                },
+                OutgoingApplication = new TransactionHoldingApplication()
+                {
+                    IsAppliedToAvailableBalance = false,
+                    IsAppliedToBalance = false,
+                },
                 Transaction = transaction
             };
             account.Holdings.Add(holding);

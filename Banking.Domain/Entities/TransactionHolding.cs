@@ -8,11 +8,12 @@ public class TransactionHolding
     [Required]
     public Guid TransactionId { get; set; }
 
-    [Required]
-    public bool IsAppliedToBalance { get; set; }
+    public TransactionHoldingApplication IncommingApplication { get; set; }
 
-    [Required]
-    public bool IsAppliedToAvailableBalance { get; set; }
+    public TransactionHoldingApplication OutgoingApplication { get; set; }
+
+    // [Required]
+    // public bool Completed { get; set; }
 
     // References
     public Transaction Transaction { get; set; }
