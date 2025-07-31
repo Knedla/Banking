@@ -9,6 +9,7 @@ using Banking.Domain.Repositories;
 
 namespace Banking.Application.Services;
 
+// TODO: create factory pattern that request TransactionType and returns instance of IInsertTransactionService -> current IInsertTransactionService needs refactor to suport this
 public class InsertTransactionService<T> : IInsertTransactionService<T> where T : IPolicy, ITransactionPolicy
 {
     private readonly ITransactionService _transactionService;

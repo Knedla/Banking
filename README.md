@@ -12,20 +12,23 @@ a subset of the data is defined in them
 prone to change
 
 
-normalize code for asycn awate task					- poorly implemented
-normalize exceptions logic, when to stop pipeline	- poorly implemented
-add logic for CancellationToken						- not implemented
-add cache layer										- not implemented
-logging												- not implemented
-implement IdGenereator								- not implemented
-currency code comparison solution					- not implemented
+normalize code for asycn awate task						- poorly implemented
+normalize exceptions logic, when to stop pipeline		- poorly implemented
+add logic for CancellationToken							- not implemented
+add cache layer											- not implemented
+logging													- not implemented
+implement IdGenereator									- not implemented
+currency code comparison solution						- not implemented
 
-normalize data for requests and response			- poorly implemented
-add valid DTO layer									- poorly implemented
-add object mappers									- not implemented
+normalize data for requests and response				- poorly implemented
+add valid DTO layer										- poorly implemented
+add object mappers										- not implemented
 
-all strings move to enums or consts					- poorly implemented
-add resources										- not implemented
+all strings move to enums or consts						- poorly implemented
+add resources											- not implemented
+
+
+notifications are not tested, but refactoring is needed	- poorly implemented
 
 
 -- Add Entities --

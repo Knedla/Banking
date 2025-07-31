@@ -6,6 +6,7 @@ using Banking.Domain.Repositories;
 
 namespace Banking.Application.Services;
 
+// TODO: create factory pattern that request TransactionType and returns instance of IInsertTransactionService -> current IInsertTransactionService needs refactor to suport this
 public class InsertFeeTransactionService : IInsertFeeTransactionService
 {
     private readonly ITransactionRepository _transactionRepository;
