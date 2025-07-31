@@ -49,14 +49,14 @@ public class TransactionFeeService : ITransactionFeeService
                 // ReversalTransactionId
                 Timestamp = timestamp,
                 Type = TransactionType.Fee,
-                Status = TransactionStatus.Posted, // probably some minipipeline should be created for fees because they are not an independent transaction but part of the main one. this value is set for convenience
+                Status = TransactionStatus.Pending, // probably some minipipeline should be created for fees because they are not an independent transaction but part of the main one. this value is set for convenience
                 Channel = TransactionChannel.System,
                 Description = fee.Code,
 
                 FromTransactionAccountDetails = fromTransactionAccountDetails,
                 ToTransactionAccountDetails = new TransactionAccountDetails()
                 {
-                    AccountNumber = fee.AccountNumber,
+                    AccountId = fee.AccountId,
                 },
                 CounterpartyAccountDetails = new CounterpartyAccountDetails()
                 {

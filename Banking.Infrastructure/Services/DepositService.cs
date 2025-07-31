@@ -12,16 +12,13 @@ namespace Banking.Infrastructure.Services;
 public class DepositService : IDepositService
 {
     private readonly IAccountRepository _accountRepository;
-    private readonly ICurrencyExchangeService _currencyExchangeService;
     private readonly IInsertTransactionService<IDepositPolicy> _insertTransactionService;
 
     public DepositService(
         IAccountRepository accountRepository,
-        ICurrencyExchangeService currencyExchangeService,
         IInsertTransactionService<IDepositPolicy> insertTransactionService)
     {
         _accountRepository = accountRepository;
-        _currencyExchangeService = currencyExchangeService;
         _insertTransactionService = insertTransactionService;
     }
 
@@ -68,8 +65,8 @@ public class DepositService : IDepositService
             // CounterpartyAccountDetails
 
             FromCurrencyAmount = fromCurrencyAmount,
-            ExchangeRate = exchangeRate,
-            CalculatedCurrencyAmount = (exchangeRate == null) ? fromCurrencyAmount : await _currencyExchangeService.ConvertAsync(fromCurrencyAmount.Amount, exchangeRate),
+            // ExchangeRate
+            CalculatedCurrencyAmount = fromCurrencyAmount,
 
             RequiresApproval = false,
             ApprovalStatus = ApprovalStatus.NotRequired,

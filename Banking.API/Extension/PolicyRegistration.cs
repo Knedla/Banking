@@ -3,6 +3,7 @@ using Banking.Application.Rules;
 using Banking.Domain.Configuration;
 using Banking.Domain.Interfaces.Polices;
 using Banking.Domain.Interfaces.Rules;
+using Banking.Infrastructure.Policies;
 using Banking.Infrastructure.Rules.TransactionApprovals;
 using Banking.Infrastructure.Rules.TransactionFees;
 using Microsoft.Extensions.Configuration;
@@ -34,6 +35,8 @@ public static class PolicyRegistration
         services.AddScoped<ITransactionFeeRule, StandardTransferFeeRule>();
         services.AddScoped<ITransactionFeeRule, ChannelFeeRule>();
         services.AddScoped<ITransactionFeeRule, WithdrawalFeeRule>();
+
+        services.AddScoped<IWithdrawalPolicy, MinimumBalanceWithdrawalPolicy>();
 
         // Policies
         services.Scan(scan => scan

@@ -93,3 +93,23 @@ var depositRequest = new DepositRequest()
 
 DepositController depositController = new DepositController();
 depositController.Deposit(depositCommandHandler, depositRequest, CancellationToken.None);
+
+
+// -- Withdrawal --
+var withdrawalCommandHandler = transactionCommandHandlerFactory.Create<WithdrawalRequest, WithdrawalResponse>();
+
+var withdrawalRequest = new WithdrawalRequest()
+{
+    UserId = Guid.NewGuid(),
+    TransactionAccountDetails = new TransactionAccountDetails()
+    {
+        AccountId = new Guid("b67dc798-e95f-464a-bbd1-f56b57d60a5e")
+    },
+    TransactionInitializedById = new Guid("9ba7d2a3-6a9e-4e78-93a0-42f3d5ec8ef6"),
+    CurrencyCode = "EUR",
+    Amount = 400,
+    TransactionChannel = TransactionChannel.ATM
+};
+
+WithdrawalController withdrawalController = new WithdrawalController();
+withdrawalController.Withdraw(withdrawalCommandHandler, withdrawalRequest, CancellationToken.None);

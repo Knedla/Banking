@@ -172,8 +172,64 @@ public class InMemoryBankingDataStore : IBankingDataStore // TODO: change with n
                     {
                         AccountId = account1,
                         CurrencyCode = "EUR",
-                        Balance = 775533,
-                        AvailableBalance = 775533,
+                        Balance = 3000,
+                        AvailableBalance = 3000,
+                    }
+                },
+                Overdraft = new Overdraft()
+                {
+                    Limit = 1000,
+                    CurrencyCode = "EUR"
+                }
+            });
+
+        Guid account2 = new Guid("b67dc798-e95f-464a-bbd1-f56b57d60a5e");
+
+        Accounts.Add(
+            new Account()
+            {
+                Id = account2,
+                InvolvedPartyId = new Guid("f4bd0b90-10c6-47ff-bb35-113c0c779c3f"),
+                AccountNumber = "456",
+                AccountType = AccountType.Standard,
+                PrimaryCurrencyCode = "EUR",
+                CreatedAt = DateTime.UtcNow,
+                Balances = new AccountBalance[]
+                {
+                    new AccountBalance()
+                    {
+                        AccountId = account2,
+                        CurrencyCode = "EUR",
+                        Balance = 500,
+                        AvailableBalance = 500,
+                    }
+                },
+                Overdraft = new Overdraft()
+                {
+                    Limit = 1000,
+                    CurrencyCode = "EUR"
+                }
+            });
+
+        Guid account3 = new Guid("1a8df24e-0679-41f6-a53c-f37a0c114bb0"); // should simulate bank account for fees
+
+        Accounts.Add(
+            new Account()
+            {
+                Id = account3,
+                InvolvedPartyId = new Guid("f4bd0b90-10c6-47ff-bb35-113c0c779c3f"),
+                AccountNumber = "789",
+                AccountType = AccountType.Standard,
+                PrimaryCurrencyCode = "EUR",
+                CreatedAt = DateTime.UtcNow,
+                Balances = new AccountBalance[]
+                {
+                    new AccountBalance()
+                    {
+                        AccountId = account3,
+                        CurrencyCode = "EUR",
+                        Balance = 0,
+                        AvailableBalance = 0,
                     }
                 },
                 Overdraft = new Overdraft()

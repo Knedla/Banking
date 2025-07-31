@@ -62,7 +62,7 @@ public class TransferService : ITransferService
             // ReversalTransactionId
             Timestamp = timestamp,
             Type = TransactionType.Transfer,
-            Status = TransactionStatus.Posted, // this value is set for convenience
+            Status = TransactionStatus.Pending, // this value is set for convenience
             Channel = request.TransactionChannel,
             // Description
             FromTransactionAccountDetails = new TransactionAccountDetails()

@@ -49,7 +49,7 @@ public class MinimumBalanceFeeRule : ITransactionFeeRule
             Name = "Minimum Balance Fee",
             Amount = feeConfig.Amount,
             CurrencyCode = feeConfig.CurrencyCode,
-            AccountNumber = feeConfig.AccountNumber ?? _settings.DefaultAccountNumber,
+            AccountId = feeConfig.AccountId ?? _settings.DefaultAccountId,
             Type = feeConfig.Type,
             Trigger = FeeTrigger.OnExecution
         };

@@ -36,7 +36,7 @@ public class StandardTransferFeeRule : ITransactionFeeRule
             Name = "Standard Transfer Fee",
             Amount = feeConfig.Amount,
             CurrencyCode = feeConfig.CurrencyCode,
-            AccountNumber = feeConfig.AccountNumber ?? _settings.DefaultAccountNumber,
+            AccountId = feeConfig.AccountId ?? _settings.DefaultAccountId,
             Type = feeConfig.Type,
             Trigger = FeeTrigger.OnExecution
         };

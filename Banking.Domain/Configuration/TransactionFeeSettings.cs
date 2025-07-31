@@ -10,5 +10,5 @@ public class TransactionFeeSettings
     public List<FeeValue> NonSameBankWithdrawal { get; set; }
     public string BankIdentifier { get; set; }
     public string DefaultCurrencyCode { get; set; }
-    public string DefaultAccountNumber { get; set; }
+    public Guid DefaultAccountId { get; set; }
 }

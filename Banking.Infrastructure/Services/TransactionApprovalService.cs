@@ -38,12 +38,12 @@ public class TransactionApprovalService : ITransactionApprovalService
 
         foreach (var item in transaction.RelatedTransactions.Where(s => !endTransactionStatuses.Contains(s.Status)))
         {
-            approvalDecision = await ApproveAsync(transaction, currentUserId, cancellationToken);
+            approvalDecision = await ApproveAsync(item, currentUserId, cancellationToken);
             approvalDecisions.Add(approvalDecision);
         }
 
         if (approvalDecisions.All(s => s.IsApproved))
-            await _domainEventDispatcher.RaiseAsync(new TransactionWithRelatedTransactionsApprovedEvent(
+            await _domainEventDispatcher.RaiseAsync(new TransactionApprovedEvent(
                 transaction.Id,
                 transaction.TransactionInitializedById ?? Guid.Empty // InvolvedPartyId prop should be removed from IDomainEvent, eventually
             ));

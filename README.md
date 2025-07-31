@@ -11,6 +11,8 @@ entities are not fully completed
 a subset of the data is defined in them
 prone to change
 
+Transaction statuses flow not fully implemented, added just enought to close basic scenarios
+
 
 normalize code for asycn awate task						- poorly implemented
 normalize exceptions logic, when to stop pipeline		- poorly implemented

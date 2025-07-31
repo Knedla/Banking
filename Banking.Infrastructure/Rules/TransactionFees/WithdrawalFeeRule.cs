@@ -38,7 +38,7 @@ public class WithdrawalFeeRule : ITransactionFeeRule
             Name = "External ATM Withdrawal Fee",
             Amount = decimal.Round(feeAmount, 2),
             CurrencyCode = transaction.FromCurrencyAmount.CurrencyCode,
-            AccountNumber = feeConfig.AccountNumber ?? _settings.DefaultAccountNumber,
+            AccountId = feeConfig.AccountId ?? _settings.DefaultAccountId,
             Type = FeeType.Percentage,
             Trigger = FeeTrigger.OnExecution
         };

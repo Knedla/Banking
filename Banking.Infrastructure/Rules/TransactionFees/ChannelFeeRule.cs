@@ -34,7 +34,7 @@ public class ChannelFeeRule : ITransactionFeeRule
             Name = $"{transaction.Channel} Channel Fee",
             Amount = channelFee.Amount,
             CurrencyCode = channelFee.CurrencyCode,
-            AccountNumber = channelFee.AccountNumber ?? _settings.DefaultAccountNumber,
+            AccountId = channelFee.AccountId ?? _settings.DefaultAccountId,
             Type = channelFee.Type,
             Trigger = FeeTrigger.OnExecution
         };

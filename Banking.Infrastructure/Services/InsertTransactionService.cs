@@ -86,11 +86,6 @@ public class InsertTransactionService<T> : IInsertTransactionService<T> where T 
                 transaction.TransactionInitializedById ?? Guid.Empty // InvolvedPartyId prop should be removed from IDomainEvent, eventually
             ));
 
-        await _domainEventDispatcher.RaiseAsync(new TransactionApprovedEvent(
-                transaction.Id,
-                transaction.TransactionInitializedById ?? Guid.Empty // InvolvedPartyId prop should be removed from IDomainEvent, eventually
-            ));
-
         return new U { TransactionStatus = transaction.Status, };
     }
 }
