@@ -135,8 +135,9 @@ var transferRequest = new TransferRequest()
         AccountId = new Guid("b67dc798-e95f-464a-bbd1-f56b57d60a5e")
     },
     
-    FromCurrencyCode = "EUR",
+    FromCurrencyCode = "USD",
     Amount = 1000,
+    ToCurrencyCode = "EUR",
     TransactionChannel = TransactionChannel.MobileApp
 };
 

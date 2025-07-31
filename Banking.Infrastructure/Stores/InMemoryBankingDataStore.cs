@@ -174,6 +174,13 @@ public class InMemoryBankingDataStore : IBankingDataStore // TODO: change with n
                         CurrencyCode = "EUR",
                         Balance = 3000,
                         AvailableBalance = 3000,
+                    },
+                    new AccountBalance()
+                    {
+                        AccountId = account1,
+                        CurrencyCode = "USD",
+                        Balance = 2000,
+                        AvailableBalance = 2000,
                     }
                 },
                 Overdraft = new Overdraft()
@@ -228,6 +235,13 @@ public class InMemoryBankingDataStore : IBankingDataStore // TODO: change with n
                     {
                         AccountId = account3,
                         CurrencyCode = "EUR",
+                        Balance = 0,
+                        AvailableBalance = 0,
+                    },
+                    new AccountBalance()
+                    {
+                        AccountId = account3,
+                        CurrencyCode = "USD",
                         Balance = 0,
                         AvailableBalance = 0,
                     }
