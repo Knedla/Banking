@@ -19,7 +19,7 @@ namespace Banking.Infrastructure.Services
         {
             // Example logic (in real life, call DB, ML model, or third-party API)
             _logger.LogInformation("Checking fraud for withdrawal: {Amount}", transaction.CalculatedCurrencyAmount.Amount);
-            await Task.Delay(50, cancellationToken); // simulate latency
+            //await Task.Delay(50, cancellationToken); // simulate latency
             return transaction.CalculatedCurrencyAmount.Amount > amount; // flag large transaction as suspicious
         }
     }

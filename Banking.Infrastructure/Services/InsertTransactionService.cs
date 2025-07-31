@@ -46,17 +46,19 @@ public class InsertTransactionService<T> : IInsertTransactionService<T> where T 
         await _transactionRepository.AddAsync(transaction); // trigger event transaction added if needed
         await _updateBalanceService.UpdateBalanceAsync(transaction);
 
-        //if (await _fraudDetectionService.IsSuspiciousTransactionAsync(transaction, CancellationToken.None)) // AML calculation
-        //{
-        //    await _transactionService.ChangeStatusAsync(transaction, TransactionStatus.Suspended, currentUserId, cancellationToken);
+        var amlResult = await _fraudDetectionService.IsSuspiciousTransactionAsync(transaction, CancellationToken.None); // AML calculation
 
-        //    var result = new T
-        //    {
-        //        TransactionStatus = transaction.Status
-        //    };
-        //    result.AddError("ALM watching you!");
-        //    return result;
-        //}
+        if (amlResult)
+        {
+            await _transactionService.ChangeStatusAsync(transaction, TransactionStatus.Suspended, currentUserId, cancellationToken);
+
+            var result = new U
+            {
+                TransactionStatus = transaction.Status
+            };
+            result.AddError("ALM watching you!");
+            return result;
+        }
 
         await _domainEventDispatcher.RaiseAsync(new TransactionFeeRequestEvent(
                 transaction.Id,
